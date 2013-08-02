@@ -32,8 +32,6 @@ class ElggMemcache extends ElggSharedMemoryCache {
 	 *
 	 * @param string $namespace The namespace for this cache to write to -
 	 * note, namespaces of the same name are shared!
-	 *
-	 * @throws ConfigurationException
 	 */
 	function __construct($namespace = 'default') {
 		global $CONFIG;
@@ -42,7 +40,7 @@ class ElggMemcache extends ElggSharedMemoryCache {
 
 		// Do we have memcache?
 		if (!class_exists('Memcache')) {
-			throw new ConfigurationException('PHP memcache module not installed, you must install php5-memcache');
+			throw new ConfigurationException(elgg_echo('memcache:notinstalled'));
 		}
 
 		// Create memcache object
@@ -50,7 +48,7 @@ class ElggMemcache extends ElggSharedMemoryCache {
 
 		// Now add servers
 		if (!$CONFIG->memcache_servers) {
-			throw new ConfigurationException('No memcache servers defined, please populate the $CONFIG->memcache_servers variable');
+			throw new ConfigurationException(elgg_echo('memcache:noservers'));
 		}
 
 		if (is_callable(array($this->memcache, 'addServer'))) {
@@ -87,7 +85,7 @@ class ElggMemcache extends ElggSharedMemoryCache {
 		// Get version
 		$this->version = $this->memcache->getVersion();
 		if (version_compare($this->version, ElggMemcache::$MINSERVERVERSION, '<')) {
-			$msg = vsprintf('Memcache needs at least version %s to run, you are running %s',
+			$msg = elgg_echo('memcache:versiontoolow',
 				array(ElggMemcache::$MINSERVERVERSION,
 				$this->version
 			));

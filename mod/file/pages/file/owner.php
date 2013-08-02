@@ -36,9 +36,10 @@ $title = elgg_echo("file:user", array($owner->name));
 
 // List files
 $content = elgg_list_entities(array(
-	'type' => 'object',
-	'subtype' => 'file',
+	'types' => 'object',
+	'subtypes' => 'file',
 	'container_guid' => $owner->guid,
+	'limit' => 10,
 	'full_view' => FALSE,
 ));
 if (!$content) {

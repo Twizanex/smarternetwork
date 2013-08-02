@@ -47,6 +47,7 @@ if ($alt_image) {
 
 echo <<<HTML
 <div class="$class clearfix" $id>
+views/default/page/components/image_block.php
 	$image$alt_image$body
 </div>
 HTML;

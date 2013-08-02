@@ -56,9 +56,6 @@ function bookmarks_init() {
 	// Listen to notification events and supply a more useful message
 	elgg_register_plugin_hook_handler('notify:entity:message', 'object', 'bookmarks_notify_message');
 
-	// Register bookmarks view for ecml parsing
-	elgg_register_plugin_hook_handler('get_views', 'ecml', 'bookmarks_ecml_views_hook');
-
 	// Register a URL handler for bookmarks
 	elgg_register_entity_url_handler('object', 'bookmarks', 'bookmark_url');
 
@@ -89,12 +86,7 @@ function bookmarks_init() {
  * @return bool
  */
 function bookmarks_page_handler($page) {
-
 	elgg_load_library('elgg:bookmarks');
-
-	if (!isset($page[0])) {
-		$page[0] = 'all';
-	}
 
 	elgg_push_breadcrumb(elgg_echo('bookmarks'), 'bookmarks/all');
 
@@ -128,13 +120,10 @@ function bookmarks_page_handler($page) {
 			include "$pages/friends.php";
 			break;
 
+		case "read":
 		case "view":
 			set_input('guid', $page[1]);
 			include "$pages/view.php";
-			break;
-		case 'read': // Elgg 1.7 compatibility
-			register_error(elgg_echo("changebookmark"));
-			forward("bookmarks/view/{$page[1]}");
 			break;
 
 		case "add":
@@ -296,18 +285,5 @@ function bookmarks_page_menu($hook, $type, $return, $params) {
 		}
 	}
 
-	return $return;
-}
-
-/**
- * Return bookmarks views to parse for ecml
- *
- * @param string $hook
- * @param string $type
- * @param array  $return
- * @param array  $params
- */
-function bookmarks_ecml_views_hook($hook, $type, $return, $params) {
-	$return['object/bookmarks'] = elgg_echo('item:object:bookmarks');
 	return $return;
 }

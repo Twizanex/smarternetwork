@@ -28,8 +28,7 @@ $english = array(
 	'developers:label:show_strings' => "Show raw translation strings",
 	'developers:help:show_strings' => "This displays the translation strings used by elgg_echo().",
 	'developers:label:wrap_views' => "Wrap views",
-	'developers:help:wrap_views' => "This wraps almost every view with HTML comments. Useful for finding the view creating particular HTML.
-									This can break non-HTML views in the default viewtype. See developers_wrap_views() for details.",
+	'developers:help:wrap_views' => "This wraps almost every view with HTML comments. Useful for finding the view creating particular HTML.",
 	'developers:label:log_events' => "Log events and plugin hooks",
 	'developers:help:log_events' => "Write events and plugin hooks to the log. Warning: there are many of these per page.",
 
@@ -55,7 +54,6 @@ $english = array(
 	'theme_preview:modules' => 'Modules',
 	'theme_preview:navigation' => 'Navigation',
 	'theme_preview:typography' => 'Typography',
-	'theme_preview:miscellaneous' => 'Miscellaneous',
 
 	// unit tests
 	'developers:unit_tests:description' => 'Elgg has unit and integration tests for detecting bugs in its core classes and functions.',

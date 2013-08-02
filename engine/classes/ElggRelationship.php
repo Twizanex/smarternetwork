@@ -71,7 +71,6 @@ class ElggRelationship extends ElggData implements
 	 * Save the relationship
 	 *
 	 * @return int the relationship id
-	 * @throws IOException
 	 */
 	public function save() {
 		if ($this->id > 0) {
@@ -146,7 +145,7 @@ class ElggRelationship extends ElggData implements
 	 * @param ODD $data ODD data
 
 	 * @return bool
-	 * @throws ImportException|InvalidParameterException
+	 * @throws ImportException
 	 */
 	public function import(ODD $data) {
 		if (!($data instanceof ODDRelationship)) {
@@ -180,8 +179,6 @@ class ElggRelationship extends ElggData implements
 				return true;
 			}
 		}
-
-		return false;
 	}
 
 	// SYSTEM LOG INTERFACE ////////////////////////////////////////////////////////////

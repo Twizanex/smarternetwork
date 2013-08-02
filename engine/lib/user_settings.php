@@ -265,9 +265,9 @@ function elgg_set_user_default_access() {
  * @access private
  */
 function usersettings_pagesetup() {
-	$user = elgg_get_page_owner_entity();
+	if (elgg_get_context() == "settings") {
+		$user = elgg_get_page_owner_entity();
 
-	if ($user && elgg_get_context() == "settings") {
 		$params = array(
 			'name' => '1_account',
 			'text' => elgg_echo('usersettings:user:opt:linktext'),
@@ -308,7 +308,7 @@ function usersettings_page_handler($page) {
 		$user = get_user_by_username($page[1]);
 		elgg_set_page_owner_guid($user->guid);
 	} else {
-		$user = elgg_get_logged_in_user_entity();
+		$user = elgg_get_logged_in_user_guid();
 		elgg_set_page_owner_guid($user->guid);
 	}
 
@@ -332,7 +332,6 @@ function usersettings_page_handler($page) {
 		require $path;
 		return true;
 	}
-	return false;
 }
 
 /**

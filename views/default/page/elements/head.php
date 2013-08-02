@@ -66,9 +66,7 @@ $release = get_version(true);
 <?php } ?>
 
 <script type="text/javascript">
-// <![CDATA[
 	<?php echo elgg_view('js/initialize_elgg'); ?>
-// ]]>
 </script>
 
 <?php

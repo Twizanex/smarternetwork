@@ -12,26 +12,6 @@
  */
 
 /**
- * Return an ElggCache static variable cache for the access caches
- *
- * @staticvar ElggStaticVariableCache $access_cache
- * @return \ElggStaticVariableCache
- * @access private
- */
-function _elgg_get_access_cache() {
-	/**
-	 * A default filestore cache using the dataroot.
-	 */
-	static $access_cache;
-
-	if (!$access_cache) {
-		$access_cache = new ElggStaticVariableCache('access');
-	}
-
-	return $access_cache;
-}
-
-/**
  * Return a string of access_ids for $user_id appropriate for inserting into an SQL IN clause.
  *
  * @uses get_access_array
@@ -49,10 +29,10 @@ function _elgg_get_access_cache() {
  */
 function get_access_list($user_id = 0, $site_id = 0, $flush = false) {
 	global $CONFIG, $init_finished;
-	$cache = _elgg_get_access_cache();
-	
-	if ($flush) {
-		$cache->clear();
+	static $access_list;
+
+	if (!isset($access_list)) {
+		$access_list = array();
 	}
 
 	if ($user_id == 0) {
@@ -65,20 +45,20 @@ function get_access_list($user_id = 0, $site_id = 0, $flush = false) {
 	$user_id = (int) $user_id;
 	$site_id = (int) $site_id;
 
-	$hash = $user_id . $site_id . 'get_access_list';
-
-	if ($cache[$hash]) {
-		return $cache[$hash];
+	if (isset($access_list[$user_id]) && $flush == false) {
+		return $access_list[$user_id];
 	}
-	
-	$access_array = get_access_array($user_id, $site_id, $flush);
-	$access = "(" . implode(",", $access_array) . ")";
 
-	if ($init_finished) {
-		$cache[$hash] = $access;
+	$access = "(" . implode(",", get_access_array($user_id, $site_id, $flush)) . ")";
+
+	// only cache if done with init and access is enabled (unless admin user)
+	// session is loaded before init is finished, so don't need to check for user session
+	if ($init_finished && (elgg_is_admin_logged_in() || !elgg_get_ignore_access())) {
+		$access_list[$user_id] = $access;
+		return $access_list[$user_id];
+	} else {
+		return $access;
 	}
-	
-	return $access;
 }
 
 /**
@@ -106,10 +86,12 @@ function get_access_list($user_id = 0, $site_id = 0, $flush = false) {
 function get_access_array($user_id = 0, $site_id = 0, $flush = false) {
 	global $CONFIG, $init_finished;
 
-	$cache = _elgg_get_access_cache();
+	// @todo everything from the db is cached.
+	// this cache might be redundant. But db cache is flushed on every db write.
+	static $access_array;
 
-	if ($flush) {
-		$cache->clear();
+	if (!isset($access_array)) {
+		$access_array = array();
 	}
 
 	if ($user_id == 0) {
@@ -123,41 +105,35 @@ function get_access_array($user_id = 0, $site_id = 0, $flush = false) {
 	$user_id = (int) $user_id;
 	$site_id = (int) $site_id;
 
-	$hash = $user_id . $site_id . 'get_access_array';
-
-	if ($cache[$hash]) {
-		$access_array = $cache[$hash];
-	} else {
-		$access_array = array(ACCESS_PUBLIC);
+	if (empty($access_array[$user_id]) || $flush == true) {
+		$tmp_access_array = array(ACCESS_PUBLIC);
 
 		// The following can only return sensible data if the user is logged in.
 		if (elgg_is_logged_in()) {
-			$access_array[] = ACCESS_LOGGED_IN;
+			$tmp_access_array[] = ACCESS_LOGGED_IN;
 
 			// Get ACL memberships
 			$query = "SELECT am.access_collection_id"
 				. " FROM {$CONFIG->dbprefix}access_collection_membership am"
 				. " LEFT JOIN {$CONFIG->dbprefix}access_collections ag ON ag.id = am.access_collection_id"
-				. " WHERE am.user_guid = $user_id AND (ag.site_guid = $site_id OR ag.site_guid = 0)";
+				. " WHERE am.user_guid = {$user_id} AND (ag.site_guid = {$site_id} OR ag.site_guid = 0)";
 
-			$collections = get_data($query);
-			if ($collections) {
+			if ($collections = get_data($query)) {
 				foreach ($collections as $collection) {
 					if (!empty($collection->access_collection_id)) {
-						$access_array[] = (int)$collection->access_collection_id;
+						$tmp_access_array[] = (int)$collection->access_collection_id;
 					}
 				}
 			}
 
 			// Get ACLs owned.
 			$query = "SELECT ag.id FROM {$CONFIG->dbprefix}access_collections ag ";
-			$query .= "WHERE ag.owner_guid = $user_id AND (ag.site_guid = $site_id OR ag.site_guid = 0)";
+			$query .= "WHERE ag.owner_guid = {$user_id} AND (ag.site_guid = {$site_id} OR ag.site_guid = 0)";
 
-			$collections = get_data($query);
-			if ($collections) {
+			if ($collections = get_data($query)) {
 				foreach ($collections as $collection) {
 					if (!empty($collection->id)) {
-						$access_array[] = (int)$collection->id;
+						$tmp_access_array[] = (int)$collection->id;
 					}
 				}
 			}
@@ -165,21 +141,21 @@ function get_access_array($user_id = 0, $site_id = 0, $flush = false) {
 			$ignore_access = elgg_check_access_overrides($user_id);
 
 			if ($ignore_access == true) {
-				$access_array[] = ACCESS_PRIVATE;
+				$tmp_access_array[] = ACCESS_PRIVATE;
+			}
+
+			// only cache if done with init and access is enabled (unless admin user)
+			// session is loaded before init is finished, so don't need to check for user session
+			if ($init_finished && (elgg_is_admin_logged_in() || !elgg_get_ignore_access())) {
+				$access_array[$user_id] = $tmp_access_array;
 			}
 		}
-
-		if ($init_finished) {
-			$cache[$hash] = $access_array;
-		}
+	} else {
+		$tmp_access_array = $access_array[$user_id];
 	}
 
-	$options = array(
-		'user_id' => $user_id,
-		'site_id' => $site_id
-	);
-	
-	return elgg_trigger_plugin_hook('access:collections:read', 'user', $options, $access_array);
+	$options = array('user_id' => $user_id, 'site_id' => $site_id);
+	return elgg_trigger_plugin_hook('access:collections:read', 'user', $options, $tmp_access_array);
 }
 
 /**
@@ -425,12 +401,9 @@ function has_access_to_entity($entity, $user = null) {
  * @link http://docs.elgg.org/Access
  */
 function get_write_access_array($user_id = 0, $site_id = 0, $flush = false) {
-	global $CONFIG, $init_finished;
-	$cache = _elgg_get_access_cache();
-
-	if ($flush) {
-		$cache->clear();
-	}
+	global $CONFIG;
+	//@todo this is probably not needed since caching happens at the DB level.
+	static $access_array;
 
 	if ($user_id == 0) {
 		$user_id = elgg_get_logged_in_user_guid();
@@ -443,41 +416,37 @@ function get_write_access_array($user_id = 0, $site_id = 0, $flush = false) {
 	$user_id = (int) $user_id;
 	$site_id = (int) $site_id;
 
-	$hash = $user_id . $site_id . 'get_write_access_array';
+	if (empty($access_array[$user_id]) || $flush == true) {
+		$query = "SELECT ag.* FROM {$CONFIG->dbprefix}access_collections ag ";
+		$query .= " WHERE (ag.site_guid = {$site_id} OR ag.site_guid = 0)";
+		$query .= " AND (ag.owner_guid = {$user_id})";
+		// ACCESS_PRIVATE through ACCESS_PUBLIC take 0 through 2
+		// @todo this AND clause is unnecessary because of id starts at 3 for table
+		$query .= " AND ag.id >= 3";
 
-	if ($cache[$hash]) {
-		$access_array = $cache[$hash];
-	} else {
-		// @todo is there such a thing as public write access?
-		$access_array = array(
+		$tmp_access_array = array(
 			ACCESS_PRIVATE => elgg_echo("PRIVATE"),
 			ACCESS_FRIENDS => elgg_echo("access:friends:label"),
 			ACCESS_LOGGED_IN => elgg_echo("LOGGED_IN"),
 			ACCESS_PUBLIC => elgg_echo("PUBLIC")
 		);
-		
-		$query = "SELECT ag.* FROM {$CONFIG->dbprefix}access_collections ag ";
-		$query .= " WHERE (ag.site_guid = $site_id OR ag.site_guid = 0)";
-		$query .= " AND (ag.owner_guid = $user_id)";
-
 		$collections = get_data($query);
 		if ($collections) {
 			foreach ($collections as $collection) {
-				$access_array[$collection->id] = $collection->name;
+				$tmp_access_array[$collection->id] = $collection->name;
 			}
 		}
 
-		if ($init_finished) {
-			$cache[$hash] = $access_array;
-		}
+		$access_array[$user_id] = $tmp_access_array;
+	} else {
+		$tmp_access_array = $access_array[$user_id];
 	}
 
-	$options = array(
-		'user_id' => $user_id,
-		'site_id' => $site_id
-	);
-	return elgg_trigger_plugin_hook('access:collections:write', 'user',
-		$options, $access_array);
+	$options = array('user_id' => $user_id, 'site_id' => $site_id);
+	$tmp_access_array = elgg_trigger_plugin_hook('access:collections:write', 'user',
+		$options, $tmp_access_array);
+
+	return $tmp_access_array;
 }
 
 /**
@@ -507,7 +476,7 @@ function can_edit_access_collection($collection_id, $user_guid = null) {
 		return false;
 	}
 
-	$write_access = get_write_access_array($user->getGUID(), 0, true);
+	$write_access = get_write_access_array($user->getGUID(), null, true);
 
 	// don't ignore access when checking users.
 	if ($user_guid) {
@@ -591,6 +560,8 @@ function create_access_collection($name, $owner_guid = 0, $site_guid = 0) {
  * @see remove_user_from_access_collection()
  */
 function update_access_collection($collection_id, $members) {
+	global $CONFIG;
+
 	$acl = get_access_collection($collection_id);
 
 	if (!$acl) {
@@ -906,8 +877,6 @@ function get_readable_access_level($entity_access_id) {
  * @tip Use this to access entities in automated scripts
  * when no user is logged in.
  *
- * @note This clears the access cache.
- *
  * @warning This will not show disabled entities.
  * Use {@link access_show_hidden_entities()} to access disabled entities.
  *
@@ -919,8 +888,6 @@ function get_readable_access_level($entity_access_id) {
  * @see elgg_get_ignore_access()
  */
 function elgg_set_ignore_access($ignore = true) {
-	$cache = _elgg_get_access_cache();
-	$cache->clear();
 	$elgg_access = elgg_get_access_object();
 	return $elgg_access->setIgnoreAccess($ignore);
 }
@@ -1015,10 +982,6 @@ function access_init() {
  *
  * Returns true to override the access system or null if no change is needed.
  *
- * @param string $hook
- * @param string $type
- * @param bool $value
- * @param array $params
  * @return true|null
  * @access private
  */
@@ -1051,18 +1014,10 @@ function elgg_override_permissions($hook, $type, $value, $params) {
 
 /**
  * Runs unit tests for the entities object.
- *
- * @param string $hook
- * @param string $type
- * @param array $value
- * @param array $params
- * @return array
- *
  * @access private
  */
 function access_test($hook, $type, $value, $params) {
 	global $CONFIG;
-
 	$value[] = $CONFIG->path . 'engine/tests/api/access_collections.php';
 	return $value;
 }

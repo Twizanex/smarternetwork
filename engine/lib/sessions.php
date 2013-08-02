@@ -286,6 +286,8 @@ function check_rate_limit_exceeded($user_guid) {
  * @throws LoginException
  */
 function login(ElggUser $user, $persistent = false) {
+	global $CONFIG;
+
 	// User is banned, return false.
 	if ($user->isBanned()) {
 		throw new LoginException(elgg_echo('LoginException:BannedUser'));
@@ -332,6 +334,8 @@ function login(ElggUser $user, $persistent = false) {
  * @return bool
  */
 function logout() {
+	global $CONFIG;
+
 	if (isset($_SESSION['user'])) {
 		if (!elgg_trigger_event('logout', 'user', $_SESSION['user'])) {
 			return false;
@@ -372,10 +376,14 @@ function logout() {
  *
  * @uses $_SESSION
  *
+ * @param string $event       Event name
+ * @param string $object_type Object type
+ * @param mixed  $object      Object
+ *
  * @return bool
  * @access private
  */
-function _elgg_session_boot() {
+function _elgg_session_boot($event, $object_type, $object) {
 	global $DB_PREFIX, $CONFIG;
 
 	// Use database for sessions
@@ -455,6 +463,9 @@ function _elgg_session_boot() {
 		session_destroy();
 		return false;
 	}
+
+	// Since we have loaded a new user, this user may have different language preferences
+	register_translations(dirname(dirname(dirname(__FILE__))) . "/languages/");
 
 	return true;
 }
@@ -612,8 +623,10 @@ function _elgg_session_destroy($id) {
 		global $sess_save_path;
 
 		$sess_file = "$sess_save_path/sess_$id";
-		return @unlink($sess_file);
+		return(@unlink($sess_file));
 	}
+
+	return false;
 }
 
 /**
@@ -645,3 +658,5 @@ function _elgg_session_gc($maxlifetime) {
 
 	return true;
 }
+
+elgg_register_event_handler('boot', 'system', '_elgg_session_boot', 2);

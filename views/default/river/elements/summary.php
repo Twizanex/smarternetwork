@@ -18,10 +18,9 @@ $subject_link = elgg_view('output/url', array(
 	'is_trusted' => true,
 ));
 
-$object_text = $object->title ? $object->title : $object->name;
 $object_link = elgg_view('output/url', array(
 	'href' => $object->getURL(),
-	'text' => elgg_get_excerpt($object_text, 100),
+	'text' => $object->title ? $object->title : $object->name,
 	'class' => 'elgg-river-object',
 	'is_trusted' => true,
 ));
@@ -42,12 +41,12 @@ if ($container instanceof ElggGroup) {
 }
 
 // check summary translation keys.
-// will use the $type:$subtype if that's defined, otherwise just uses $type:default
+// will use the $type:$subtype if that's defined, otherwise just uses $type
 $key = "river:$action:$type:$subtype";
 $summary = elgg_echo($key, array($subject_link, $object_link));
 
 if ($summary == $key) {
-	$key = "river:$action:$type:default";
+	$key = "river:$action:$type";
 	$summary = elgg_echo($key, array($subject_link, $object_link));
 }
 

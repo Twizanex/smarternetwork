@@ -12,11 +12,63 @@ $mod_params = array('class' => 'elgg-module-highlight');
 ?>
 
 <div class="custom-index elgg-main elgg-grid clearfix">
-	<div class="elgg-col elgg-col-1of2">
+	<div class="elgg-col elgg-col-1of3">
 		<div class="elgg-inner pvm prl">
 <?php
 // left column
 
+// a view for plugins to extend
+echo elgg_view("index/lefthandside");
+
+// groups
+if (elgg_is_active_plugin('groups')) {
+	echo elgg_view_module('featured',  elgg_echo("custom:groups"), $vars['groups'], $mod_params);
+}
+
+echo elgg_view("market/sidebar");
+
+echo elgg_view("hypeCategories/views/default/output/category.php");
+
+?>
+		</div>
+	</div>
+
+
+	<div class="elgg-col elgg-col-2of3">
+		<div class="elgg-inner pvm prl">
+
+<?php
+// center column
+
+// a view for plugins to extend
+echo elgg_view("index/center");
+
+
+// members
+//echo elgg_view_module('featured',  elgg_echo("custom:members"), $vars['members'], $mod_params);
+
+// groups
+/*if (elgg_is_active_plugin('blog')) {
+	echo elgg_view_module('featured',  elgg_echo("custom:blogs"), $vars['blogs'], $mod_params);
+}*/
+
+// bookmarks
+/*if (elgg_is_active_plugin('bookmarks')) {
+	echo elgg_view_module('featured',  elgg_echo("custom:bookmarks"), $vars['bookmarks'], $mod_params);
+}*/
+// market posts
+if (elgg_is_active_plugin('market')) {
+	echo elgg_view_module('featured', $top_box, $vars['market'], $mod_params);
+}
+?>
+
+		</div>
+	</div>
+	<div class="elgg-col elgg-col-3of3">
+		<div class="elgg-inner pvm">
+		</div>
+<?php
+// right column
 // Top box for login or welcome message
 if (elgg_is_logged_in()) {
 	$top_box = "<h2>" . elgg_echo("welcome") . " ";
@@ -25,10 +77,10 @@ if (elgg_is_logged_in()) {
 } else {
 	$top_box = $vars['login'];
 }
-echo elgg_view_module('featured',  '', $top_box, $mod_params);
+//echo elgg_view_module('featured',  '', $top_box, $mod_params);
 
 // a view for plugins to extend
-echo elgg_view("index/lefthandside");
+echo elgg_view("index/righthandside");
 
 // files
 if (elgg_is_active_plugin('file')) {
@@ -40,29 +92,5 @@ if (elgg_is_active_plugin('groups')) {
 	echo elgg_view_module('featured',  elgg_echo("custom:groups"), $vars['groups'], $mod_params);
 }
 ?>
-		</div>
-	</div>
-	<div class="elgg-col elgg-col-1of2">
-		<div class="elgg-inner pvm">
-<?php
-// right column
-
-// a view for plugins to extend
-echo elgg_view("index/righthandside");
-
-// files
-echo elgg_view_module('featured',  elgg_echo("custom:members"), $vars['members'], $mod_params);
-
-// groups
-if (elgg_is_active_plugin('blog')) {
-	echo elgg_view_module('featured',  elgg_echo("custom:blogs"), $vars['blogs'], $mod_params);
-}
-
-// files
-if (elgg_is_active_plugin('bookmarks')) {
-	echo elgg_view_module('featured',  elgg_echo("custom:bookmarks"), $vars['bookmarks'], $mod_params);
-}
-?>
-		</div>
 	</div>
 </div>

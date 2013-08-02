@@ -134,11 +134,11 @@ function elgg_delete_admin_notice($id) {
 }
 
 /**
- * Get admin notices. An admin must be logged in since the notices are private.
+ * List all admin messages.
  *
  * @param int $limit Limit
  *
- * @return array Array of admin notices
+ * @return array List of admin notices
  * @since 1.8.0
  */
 function elgg_get_admin_notices($limit = 10) {
@@ -158,13 +158,11 @@ function elgg_get_admin_notices($limit = 10) {
  * @since 1.8.0
  */
 function elgg_admin_notice_exists($id) {
-	$old_ia = elgg_set_ignore_access(true);
 	$notice = elgg_get_entities_from_metadata(array(
 		'type' => 'object',
 		'subtype' => 'admin_notice',
 		'metadata_name_value_pair' => array('name' => 'admin_notice_id', 'value' => $id)
 	));
-	elgg_set_ignore_access($old_ia);
 
 	return ($notice) ? TRUE : FALSE;
 }
@@ -235,7 +233,6 @@ function admin_init() {
 	elgg_register_action('admin/site/update_basic', '', 'admin');
 	elgg_register_action('admin/site/update_advanced', '', 'admin');
 	elgg_register_action('admin/site/flush_cache', '', 'admin');
-	elgg_register_action('admin/site/unlock_upgrade', '', 'admin');
 
 	elgg_register_action('admin/menu/save', '', 'admin');
 
@@ -247,7 +244,6 @@ function admin_init() {
 	elgg_register_action('profile/fields/delete', '', 'admin');
 	elgg_register_action('profile/fields/reorder', '', 'admin');
 
-	elgg_register_simplecache_view('css/admin');
 	elgg_register_simplecache_view('js/admin');
 	$url = elgg_get_simplecache_url('js', 'admin');
 	elgg_register_js('elgg.admin', $url);
@@ -271,9 +267,8 @@ function admin_init() {
 	// users
 	elgg_register_admin_menu_item('administer', 'users', null, 20);
 	elgg_register_admin_menu_item('administer', 'online', 'users', 10);
-	elgg_register_admin_menu_item('administer', 'admins', 'users', 20);
-	elgg_register_admin_menu_item('administer', 'newest', 'users', 30);
-	elgg_register_admin_menu_item('administer', 'add', 'users', 40);
+	elgg_register_admin_menu_item('administer', 'newest', 'users', 20);
+	elgg_register_admin_menu_item('administer', 'add', 'users', 30);
 
 	// configure
 	// plugins
@@ -348,7 +343,7 @@ function elgg_admin_add_plugin_settings_menu() {
 	$active_plugins = elgg_get_plugins('active');
 	if (!$active_plugins) {
 		// nothing added because no items
-		return;
+		return FALSE;
 	}
 
 	foreach ($active_plugins as $plugin) {
@@ -382,7 +377,6 @@ function elgg_admin_add_plugin_settings_menu() {
  */
 function elgg_admin_sort_page_menu($hook, $type, $return, $params) {
 	$configure_items = $return['configure'];
-	/* @var ElggMenuItem[] $configure_items */
 	foreach ($configure_items as $menu_item) {
 		if ($menu_item->getName() == 'settings') {
 			$settings = $menu_item;
@@ -390,7 +384,6 @@ function elgg_admin_sort_page_menu($hook, $type, $return, $params) {
 	}
 
 	// keep the basic and advanced settings at the top
-	/* @var ElggMenuItem $settings */
 	$children = $settings->getChildren();
 	$site_settings = array_splice($children, 0, 2);
 	usort($children, array('ElggMenuBuilder', 'compareByText'));
@@ -427,7 +420,7 @@ function admin_pagesetup() {
 		elgg_register_menu_item('admin_footer', array(
 			'name' => 'community_forums',
 			'text' => elgg_echo('admin:footer:community_forums'),
-			'href' => 'http://community.elgg.org/groups/all/',
+			'href' => 'http://community.elgg.org/pg/groups/world/',
 		));
 
 		elgg_register_menu_item('admin_footer', array(
@@ -470,18 +463,14 @@ function admin_page_handler($page) {
 	$vars = array('page' => $page);
 
 	// special page for plugin settings since we create the form for them
-	if ($page[0] == 'plugin_settings') {
-		if (isset($page[1]) && (elgg_view_exists("settings/{$page[1]}/edit") || 
-			elgg_view_exists("plugins/{$page[1]}/settings"))) {
+	if ($page[0] == 'plugin_settings' && isset($page[1]) &&
+		(elgg_view_exists("settings/{$page[1]}/edit") || elgg_view_exists("plugins/{$page[1]}/settings"))) {
 
-			$view = 'admin/plugin_settings';
-			$plugin = elgg_get_plugin_from_id($page[1]);
-			$vars['plugin'] = $plugin;
+		$view = 'admin/plugin_settings';
+		$plugin = elgg_get_plugin_from_id($page[1]);
+		$vars['plugin'] = $plugin;
 
-			$title = elgg_echo("admin:{$page[0]}");
-		} else {
-			forward('', '404');
-		}
+		$title = elgg_echo("admin:{$page[0]}");
 	} else {
 		$view = 'admin/' . implode('/', $page);
 		$title = elgg_echo("admin:{$page[0]}");
@@ -560,7 +549,7 @@ function admin_plugin_screenshot_page_handler($pages) {
  *	* COPYRIGHT.txt
  *	* LICENSE.txt
  *
- * @param array $pages
+ * @param type $page
  * @return bool
  * @access private
  */
@@ -582,7 +571,7 @@ function admin_markdown_page_handler($pages) {
 	if (!$plugin) {
 		$error = elgg_echo('admin:plugins:markdown:unknown_plugin');
 		$body = elgg_view_layout('admin', array('content' => $error, 'title' => $error));
-		echo elgg_view_page($error, $body, 'admin');
+		echo elgg_view_page($title, $body, 'admin');
 		return true;
 	}
 
@@ -623,11 +612,7 @@ function admin_markdown_page_handler($pages) {
 /**
  * Adds default admin widgets to the admin dashboard.
  *
- * @param string $event
- * @param string $type
- * @param ElggUser $user
- *
- * @return null|true
+ * @return void
  * @access private
  */
 function elgg_add_admin_widgets($event, $type, $user) {
@@ -649,7 +634,6 @@ function elgg_add_admin_widgets($event, $type, $user) {
 			$guid = elgg_create_widget($user->getGUID(), $handler, 'admin');
 			if ($guid) {
 				$widget = get_entity($guid);
-				/* @var ElggWidget $widget */
 				$widget->move($column, $position);
 			}
 		}

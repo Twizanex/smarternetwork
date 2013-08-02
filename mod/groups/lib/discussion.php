@@ -15,7 +15,7 @@ function discussion_handle_all_page() {
 		'type' => 'object',
 		'subtype' => 'groupforumtopic',
 		'order_by' => 'e.last_action desc',
-		'limit' => 20,
+		'limit' => 40,
 		'full_view' => false,
 	));
 
@@ -149,9 +149,8 @@ function discussion_handle_view_page($guid) {
 
 	$topic = get_entity($guid);
 	if (!$topic) {
-		register_error(elgg_echo('noaccess'));
-		$_SESSION['last_forward_from'] = current_page_url();
-		forward('');
+		register_error(elgg_echo('discussion:topic:notfound'));
+		forward();
 	}
 
 	$group = $topic->getContainerEntity();

@@ -49,7 +49,6 @@ global $CONFIG;
 if (!isset($CONFIG)) {
 	$CONFIG = new stdClass;
 }
-$CONFIG->boot_complete = false;
 
 $lib_dir = dirname(__FILE__) . '/lib/';
 
@@ -100,22 +99,11 @@ elgg_trigger_event('boot', 'system');
 
 // Load the plugins that are active
 elgg_load_plugins();
-
-// @todo move loading plugins into a single boot function that replaces 'boot', 'system' event
-// and then move this code in there.
-// This validates the view type - first opportunity to do it is after plugins load.
-$view_type = elgg_get_viewtype();
-if (!elgg_is_valid_view_type($view_type)) {
-	elgg_set_viewtype('default');
-}
-
 // @todo deprecate as plugins can use 'init', 'system' event
 elgg_trigger_event('plugins_boot', 'system');
 
 // Complete the boot process for both engine and plugins
 elgg_trigger_event('init', 'system');
-
-$CONFIG->boot_complete = true;
 
 // System loaded and ready
 elgg_trigger_event('ready', 'system');

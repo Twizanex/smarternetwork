@@ -36,9 +36,8 @@ class ElggPlugin extends ElggObject {
 	 * @warning Unlike other ElggEntity objects, you cannot null instantiate
 	 *          ElggPlugin. You must point it to an actual plugin GUID or location.
 	 *
-	 * @param mixed $plugin The GUID of the ElggPlugin object or the path of the plugin to load.
-	 *
-	 * @throws PluginException
+	 * @param mixed $plugin The GUID of the ElggPlugin object or the path of
+	 *                      the plugin to load.
 	 */
 	public function __construct($plugin) {
 		if (!$plugin) {
@@ -77,8 +76,68 @@ class ElggPlugin extends ElggObject {
 			// load the rest of the plugin
 			parent::__construct($existing_guid);
 		}
+	}
 
-		_elgg_cache_plugin_by_id($this);
+	/**
+	 * Overridden from ElggEntity and ElggObject::load(). Core always inits plugins with
+	 * a query joined to the objects_entity table, so all the info is there.
+	 *
+	 * @param mixed $guid GUID of an ElggObject or the stdClass object from entities table
+	 *
+	 * @return bool
+	 * @throws InvalidClassException
+	 */
+	protected function load($guid) {
+
+		$expected_attributes = $this->attributes;
+		unset($expected_attributes['tables_split']);
+		unset($expected_attributes['tables_loaded']);
+
+		// this was loaded with a full join
+		$needs_loaded = false;
+
+		if ($guid instanceof stdClass) {
+			$row = (array) $guid;
+			$missing_attributes = array_diff_key($expected_attributes, $row);
+			if ($missing_attributes) {
+				$needs_loaded = true;
+				$old_guid = $guid;
+				$guid = $row['guid'];
+			} else {
+				$this->attributes = $row;
+			}
+		} else {
+			$needs_loaded = true;
+		}
+
+		if ($needs_loaded) {
+			$entity = (array) get_entity_as_row($guid);
+			$object = (array) get_object_entity_as_row($guid);
+
+			if (!$entity || !$object) {
+				return false;
+			}
+			
+			$this->attributes = array_merge($this->attributes, $entity, $object);
+		}
+
+		$this->attributes['tables_loaded'] = 2;
+
+		// Check the type
+		if ($this->attributes['type'] != 'object') {
+			$msg = elgg_echo('InvalidClassException:NotValidElggStar', array($guid, get_class()));
+			throw new InvalidClassException($msg);
+		}
+
+		// guid needs to be an int  http://trac.elgg.org/ticket/4111
+		$this->attributes['guid'] = (int)$this->attributes['guid'];
+
+		// cache the entity
+		if ($this->attributes['guid']) {
+			cache_entity($this);
+		}
+
+		return true;
 	}
 
 	/**
@@ -145,7 +204,7 @@ class ElggPlugin extends ElggObject {
 	/**
 	 * Sets the location of this plugin.
 	 *
-	 * @param string $id The path to the plugin's dir.
+	 * @param path $id The path to the plugin's dir.
 	 * @return bool
 	 */
 	public function setID($id) {
@@ -303,7 +362,10 @@ class ElggPlugin extends ElggObject {
 			$return = array();
 
 			foreach ($private_settings as $setting) {
-				$return[$setting->name] = $setting->value;
+				$name = substr($setting->name, $ps_prefix_len);
+				$value = $setting->value;
+
+				$return[$name] = $value;
 			}
 
 			return $return;
@@ -597,8 +659,6 @@ class ElggPlugin extends ElggObject {
 	 * Checks if this plugin can be activated on the current
 	 * Elgg installation.
 	 *
-	 * @todo remove $site_guid param or implement it
-	 *
 	 * @param mixed $site_guid Optional site guid
 	 * @return bool
 	 */
@@ -649,8 +709,8 @@ class ElggPlugin extends ElggObject {
 			// Note: this will not run re-run the init hooks!
 			if ($return) {
 				if ($this->canReadFile('activate.php')) {
-					$flags = ELGG_PLUGIN_INCLUDE_START | ELGG_PLUGIN_REGISTER_CLASSES |
-							ELGG_PLUGIN_REGISTER_LANGUAGES | ELGG_PLUGIN_REGISTER_VIEWS;
+					$flags = ELGG_PLUGIN_INCLUDE_START | ELGG_PLUGIN_REGISTER_CLASSES
+							| ELGG_PLUGIN_REGISTER_LANGUAGES | ELGG_PLUGIN_REGISTER_VIEWS;
 
 					$this->start($flags);
 

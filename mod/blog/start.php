@@ -41,8 +41,8 @@ function blog_init() {
 	// override the default url to view a blog object
 	elgg_register_entity_url_handler('object', 'blog', 'blog_url_handler');
 
-	// notifications - need to register for unique event because of draft/published status
-	elgg_register_event_handler('publish', 'object', 'object_notifications');
+	// notifications
+	register_notification_object('object', 'blog', elgg_echo('blog:newpost'));
 	elgg_register_plugin_hook_handler('notify:entity:message', 'object', 'blog_notify_message');
 
 	// add blog link to
@@ -60,7 +60,7 @@ function blog_init() {
 	elgg_extend_view('groups/tool_latest', 'blog/group_module');
 
 	// add a blog widget
-	elgg_register_widget_type('blog', elgg_echo('blog'), elgg_echo('blog:widget:description'));
+	elgg_register_widget_type('blog', elgg_echo('blog'), elgg_echo('blog:widget:description'), 'profile');
 
 	// register actions
 	$action_path = elgg_get_plugins_path() . 'blog/actions/blog';
@@ -99,7 +99,8 @@ function blog_page_handler($page) {
 
 	elgg_load_library('elgg:blog');
 
-	// forward to correct URL for blog pages pre-1.8
+	// @todo remove the forwarder in 1.9
+	// forward to correct URL for blog pages pre-1.7.5
 	blog_url_forwarder($page);
 
 	// push all blogs breadcrumb
@@ -124,11 +125,8 @@ function blog_page_handler($page) {
 			$params = blog_get_page_content_archive($user->guid, $page[2], $page[3]);
 			break;
 		case 'view':
-			$params = blog_get_page_content_read($page[1]);
-			break;
 		case 'read': // Elgg 1.7 compatibility
-			register_error(elgg_echo("changebookmark"));
-			forward("blog/view/{$page[1]}");
+			$params = blog_get_page_content_read($page[1]);
 			break;
 		case 'add':
 			gatekeeper();
@@ -214,14 +212,7 @@ function blog_entity_menu_setup($hook, $type, $return, $params) {
 		return $return;
 	}
 
-	if ($entity->status != 'published') {
-		// draft status replaces access
-		foreach ($return as $index => $item) {
-			if ($item->getName() == 'access') {
-				unset($return[$index]);
-			}
-		}
-
+	if ($entity->canEdit() && $entity->status != 'published') {
 		$status_text = elgg_echo("blog:status:{$entity->status}");
 		$options = array(
 			'name' => 'published_status',

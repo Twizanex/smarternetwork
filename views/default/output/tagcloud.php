@@ -39,8 +39,6 @@ if (!empty($vars['tagcloud']) && is_array($vars['tagcloud'])) {
 	
 	$cloud = '';
 	foreach ($vars['tagcloud'] as $tag) {
-		$tag->tag = htmlspecialchars($tag->tag, ENT_QUOTES, 'UTF-8', false);
-
 		if ($cloud != '') {
 			$cloud .= ', ';
 		}

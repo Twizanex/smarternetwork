@@ -40,9 +40,6 @@ class ElggUser extends ElggEntity
 		$this->attributes['code'] = NULL;
 		$this->attributes['banned'] = "no";
 		$this->attributes['admin'] = 'no';
-		$this->attributes['prev_last_action'] = NULL;
-		$this->attributes['last_login'] = NULL;
-		$this->attributes['prev_last_login'] = NULL;
 		$this->attributes['tables_split'] = 2;
 	}
 
@@ -68,26 +65,30 @@ class ElggUser extends ElggEntity
 					$msg = elgg_echo('IOException:FailedToLoadGUID', array(get_class(), $guid->guid));
 					throw new IOException($msg);
 				}
+
+			// See if this is a username
 			} else if (is_string($guid)) {
-				// $guid is a username
 				$user = get_user_by_username($guid);
 				if ($user) {
 					foreach ($user->attributes as $key => $value) {
 						$this->attributes[$key] = $value;
 					}
 				}
+
+			// Is $guid is an ElggUser? Use a copy constructor
 			} else if ($guid instanceof ElggUser) {
-				// $guid is an ElggUser so this is a copy constructor
 				elgg_deprecated_notice('This type of usage of the ElggUser constructor was deprecated. Please use the clone method.', 1.7);
 
 				foreach ($guid->attributes as $key => $value) {
 					$this->attributes[$key] = $value;
 				}
+
+			// Is this is an ElggEntity but not an ElggUser = ERROR!
 			} else if ($guid instanceof ElggEntity) {
-				// @todo why have a special case here
 				throw new InvalidParameterException(elgg_echo('InvalidParameterException:NonElggUser'));
+
+			// Is it a GUID
 			} else if (is_numeric($guid)) {
-				// $guid is a GUID so load entity
 				if (!$this->load($guid)) {
 					throw new IOException(elgg_echo('IOException:FailedToLoadGUID', array(get_class(), $guid)));
 				}
@@ -105,17 +106,37 @@ class ElggUser extends ElggEntity
 	 * @return bool
 	 */
 	protected function load($guid) {
-		$attr_loader = new ElggAttributeLoader(get_class(), 'user', $this->attributes);
-		$attr_loader->secondary_loader = 'get_user_entity_as_row';
-
-		$attrs = $attr_loader->getRequiredAttributes($guid);
-		if (!$attrs) {
+		// Test to see if we have the generic stuff
+		if (!parent::load($guid)) {
 			return false;
 		}
 
-		$this->attributes = $attrs;
-		$this->attributes['tables_loaded'] = 2;
-		_elgg_cache_entity($this);
+		// Only work with GUID from here
+		if ($guid instanceof stdClass) {
+			$guid = $guid->guid;
+		}
+
+		// Check the type
+		if ($this->attributes['type'] != 'user') {
+			$msg = elgg_echo('InvalidClassException:NotValidElggStar', array($guid, get_class()));
+			throw new InvalidClassException($msg);
+		}
+
+		// Load missing data
+		$row = get_user_entity_as_row($guid);
+		if (($row) && (!$this->isFullyLoaded())) {
+			// If $row isn't a cached copy then increment the counter
+			$this->attributes['tables_loaded']++;
+		}
+
+		// Now put these into the attributes array as core values
+		$objarray = (array) $row;
+		foreach ($objarray as $key => $value) {
+			$this->attributes[$key] = $value;
+		}
+
+		// guid needs to be an int  http://trac.elgg.org/ticket/4111
+		$this->attributes['guid'] = (int)$this->attributes['guid'];
 
 		return true;
 	}
@@ -132,13 +153,9 @@ class ElggUser extends ElggEntity
 		}
 
 		// Now save specific stuff
-		_elgg_disable_caching_for_entity($this->guid);
-		$ret = create_user_entity($this->get('guid'), $this->get('name'), $this->get('username'),
+		return create_user_entity($this->get('guid'), $this->get('name'), $this->get('username'),
 			$this->get('password'), $this->get('salt'), $this->get('email'), $this->get('language'),
 			$this->get('code'));
-		_elgg_enable_caching_for_entity($this->guid);
-
-		return $ret;
 	}
 
 	/**

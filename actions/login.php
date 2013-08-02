@@ -7,8 +7,9 @@
  */
 
 // set forward url
-if (!empty($_SESSION['last_forward_from'])) {
+if (isset($_SESSION['last_forward_from']) && $_SESSION['last_forward_from']) {
 	$forward_url = $_SESSION['last_forward_from'];
+	unset($_SESSION['last_forward_from']);
 } elseif (get_input('returntoreferer')) {
 	$forward_url = REFERER;
 } else {
@@ -18,7 +19,7 @@ if (!empty($_SESSION['last_forward_from'])) {
 
 $username = get_input('username');
 $password = get_input('password', null, false);
-$persistent = (bool) get_input("persistent");
+$persistent = get_input("persistent", false);
 $result = false;
 
 if (empty($username) || empty($password)) {
@@ -59,10 +60,6 @@ if ($user->language) {
 	$message = elgg_echo('loginok', array(), $user->language);
 } else {
 	$message = elgg_echo('loginok');
-}
-
-if (isset($_SESSION['last_forward_from'])) {
-	unset($_SESSION['last_forward_from']);
 }
 
 system_message($message);

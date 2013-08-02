@@ -30,21 +30,21 @@ $form_body .= elgg_view('input/access', array(
 )) . "</div>";
 $form_body .= "<div>" . elgg_echo('installation:allow_user_default_access:description') . "<br />";
 $form_body .= elgg_view("input/checkboxes", array(
-	'options' => array(elgg_echo('installation:allow_user_default_access:label') => 1),
+	'options' => array(elgg_echo('installation:allow_user_default_access:label') => elgg_echo('installation:allow_user_default_access:label')),
 	'name' => 'allow_user_default_access',
-	'value' => (elgg_get_config('allow_user_default_access') ? 1 : 0),
+	'value' => (elgg_get_config('allow_user_default_access') ? elgg_echo('installation:allow_user_default_access:label') : ""),
 )) . "</div>";
 $form_body .= "<div>" . elgg_echo('installation:simplecache:description') . "<br />";
 $form_body .= elgg_view("input/checkboxes", array(
-	'options' => array(elgg_echo('installation:simplecache:label') => 1),
+	'options' => array(elgg_echo('installation:simplecache:label') => elgg_echo('installation:simplecache:label')),
 	'name' => 'simplecache_enabled',
-	'value' => (elgg_get_config('simplecache_enabled') ? 1 : 0),
+	'value' => (elgg_get_config('simplecache_enabled') ? elgg_echo('installation:simplecache:label') : ""),
 )) . "</div>";
 $form_body .= "<div>" . elgg_echo('installation:systemcache:description') . "<br />";
 $form_body .= elgg_view("input/checkboxes", array(
-	'options' => array(elgg_echo('installation:systemcache:label') => 1),
+	'options' => array(elgg_echo('installation:systemcache:label') => elgg_echo('installation:systemcache:label')),
 	'name' => 'system_cache_enabled',
-	'value' => (elgg_get_config('system_cache_enabled') ? 1 : 0),
+	'value' => (elgg_get_config('system_cache_enabled') ? elgg_echo('installation:systemcache:label') : ""),
 )) . "</div>";
 
 $debug_options = array('0' => elgg_echo('installation:debug:none'), 'ERROR' => elgg_echo('installation:debug:error'), 'WARNING' => elgg_echo('installation:debug:warning'), 'NOTICE' => elgg_echo('installation:debug:notice'));
@@ -58,9 +58,9 @@ $form_body .= '</div>';
 
 // control new user registration
 $options = array(
-	'options' => array(elgg_echo('installation:registration:label') => 1),
+	'options' => array(elgg_echo('installation:registration:label') => elgg_echo('installation:registration:label')),
 	'name' => 'allow_registration',
-	'value' => elgg_get_config('allow_registration') ? 1 : 0,
+	'value' => elgg_get_config('allow_registration') ? elgg_echo('installation:registration:label') : '',
 );
 $form_body .= '<div>' . elgg_echo('installation:registration:description');
 $form_body .= '<br />' .elgg_view('input/checkboxes', $options) . '</div>';
@@ -68,25 +68,28 @@ $form_body .= '<br />' .elgg_view('input/checkboxes', $options) . '</div>';
 // control walled garden
 $walled_garden = elgg_get_config(walled_garden);
 $options = array(
-	'options' => array(elgg_echo('installation:walled_garden:label') => 1),
+	'options' => array(elgg_echo('installation:walled_garden:label') => elgg_echo('installation:walled_garden:label')),
 	'name' => 'walled_garden',
-	'value' => $walled_garden ? 1 : 0,
+	'value' => $walled_garden ? elgg_echo('installation:walled_garden:label') : '',
 );
 $form_body .= '<div>' . elgg_echo('installation:walled_garden:description');
 $form_body .= '<br />' . elgg_view('input/checkboxes', $options) . '</div>';
 
 $form_body .= "<div>" . elgg_echo('installation:httpslogin') . "<br />";
 $form_body .= elgg_view("input/checkboxes", array(
-	'options' => array(elgg_echo('installation:httpslogin:label') => 1),
+	'options' => array(elgg_echo('installation:httpslogin:label') => elgg_echo('installation:httpslogin:label')),
 	'name' => 'https_login',
-	'value' => (elgg_get_config('https_login') ? 1 : 0)
+	'value' => (elgg_get_config('https_login') ? elgg_echo('installation:httpslogin:label') : "")
 )) . "</div>";
 
 $form_body .= "<div>" . elgg_echo('installation:disableapi') . "<br />";
+$on = elgg_echo('installation:disableapi:label');
 $disable_api = elgg_get_config('disable_api');
-$on = $disable_api ?  0 : 1;
+if ($disable_api) {
+	$on = (disable_api ?  "" : elgg_echo('installation:disableapi:label'));
+}
 $form_body .= elgg_view("input/checkboxes", array(
-	'options' => array(elgg_echo('installation:disableapi:label') => 1),
+	'options' => array(elgg_echo('installation:disableapi:label') => elgg_echo('installation:disableapi:label')),
 	'name' => 'api',
 	'value' => $on,
 ));

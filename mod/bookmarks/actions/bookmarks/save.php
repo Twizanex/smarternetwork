@@ -5,7 +5,7 @@
 * @package Bookmarks
 */
 
-$title = htmlspecialchars(get_input('title', '', false), ENT_QUOTES, 'UTF-8');
+$title = strip_tags(get_input('title'));
 $description = get_input('description');
 $address = get_input('address');
 $access_id = get_input('access_id');

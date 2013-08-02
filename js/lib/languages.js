@@ -4,7 +4,6 @@
  */
 elgg.provide('elgg.config.translations');
 
-// default language - required by unit tests
 elgg.config.language = 'en';
 
 /**
@@ -28,11 +27,13 @@ elgg.reload_all_translations = function(language) {
 	var lang = language || elgg.get_language();
 
 	var url, options;
-	url = 'ajax/view/js/languages';
-	options = {data: {language: lang}};
-    if (elgg.config.simplecache_enabled) {
-        options.data.lc = elgg.config.lastcache;
-    }
+	if (elgg.config.simplecache_enabled) {
+		url = 'cache/js/default/languages/' + lang + '.' + elgg.config.lastcache + '.js';
+		options = {};
+	} else {
+		url = 'ajax/view/js/languages';
+		options = {data: {language: lang}};
+	}
 
 	options['success'] = function(json) {
 		elgg.add_translation(lang, json);

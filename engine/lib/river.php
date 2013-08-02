@@ -55,7 +55,7 @@ $posted = 0, $annotation_id = 0) {
 	$posted = sanitise_int($posted);
 	$annotation_id = sanitise_int($annotation_id);
 
-	$values = array(
+	$params = array(
 		'type' => $type,
 		'subtype' => $subtype,
 		'action_type' => $action_type,
@@ -68,13 +68,13 @@ $posted = 0, $annotation_id = 0) {
 	);
 
 	// return false to stop insert
-	$values = elgg_trigger_plugin_hook('creating', 'river', null, $values);
-	if ($values == false) {
+	$params = elgg_trigger_plugin_hook('creating', 'river', null, $params);
+	if ($params == false) {
 		// inserting did not fail - it was just prevented
 		return true;
 	}
 
-	extract($values);
+	extract($params);
 
 	// Attempt to save river item; return success status
 	$id = insert_data("insert into {$CONFIG->dbprefix}river " .
@@ -361,7 +361,6 @@ function elgg_get_river(array $options = array()) {
 		}
 
 		$river_items = get_data($query, 'elgg_row_to_elgg_river_item');
-		_elgg_prefetch_river_entities($river_items);
 
 		return $river_items;
 	} else {
@@ -371,56 +370,11 @@ function elgg_get_river(array $options = array()) {
 }
 
 /**
- * Prefetch entities that will be displayed in the river.
- *
- * @param ElggRiverItem[] $river_items
- * @access private
- */
-function _elgg_prefetch_river_entities(array $river_items) {
-	// prefetch objects and subjects
-	$guids = array();
-	foreach ($river_items as $item) {
-		if ($item->subject_guid && !_elgg_retrieve_cached_entity($item->subject_guid)) {
-			$guids[$item->subject_guid] = true;
-		}
-		if ($item->object_guid && !_elgg_retrieve_cached_entity($item->object_guid)) {
-			$guids[$item->object_guid] = true;
-		}
-	}
-	if ($guids) {
-		// avoid creating oversized query
-		// @todo how to better handle this?
-		$guids = array_slice($guids, 0, 300, true);
-		// return value unneeded, just priming cache
-		elgg_get_entities(array(
-			'guids' => array_keys($guids),
-			'limit' => 0,
-		));
-	}
-
-	// prefetch object containers
-	$guids = array();
-	foreach ($river_items as $item) {
-		$object = $item->getObjectEntity();
-		if ($object->container_guid && !_elgg_retrieve_cached_entity($object->container_guid)) {
-			$guids[$object->container_guid] = true;
-		}
-	}
-	if ($guids) {
-		$guids = array_slice($guids, 0, 300, true);
-		elgg_get_entities(array(
-			'guids' => array_keys($guids),
-			'limit' => 0,
-		));
-	}
-}
-
-/**
  * List river items
  *
  * @param array $options Any options from elgg_get_river() plus:
  * 	 pagination => BOOL Display pagination links (true)
- *
+
  * @return string
  * @since 1.8.0
  */
@@ -500,7 +454,6 @@ function elgg_get_river_type_subtype_where_sql($table, $types, $subtypes, $pairs
 		return '';
 	}
 
-	$wheres = array();
 	$types_wheres = array();
 	$subtypes_wheres = array();
 
@@ -645,7 +598,7 @@ function update_river_access_by_object($object_guid, $access_id) {
 }
 
 /**
- * Page handler for activity
+ * Page handler for activiy
  *
  * @param array $page
  * @return bool
@@ -663,6 +616,10 @@ function elgg_river_page_handler($page) {
 		$page_type = 'mine';
 	}
 	set_input('page_type', $page_type);
+
+	// content filter code here
+	$entity_type = '';
+	$entity_subtype = '';
 
 	require_once("{$CONFIG->path}pages/river.php");
 	return true;
@@ -686,10 +643,8 @@ function elgg_river_init() {
 	elgg_register_page_handler('activity', 'elgg_river_page_handler');
 	$item = new ElggMenuItem('activity', elgg_echo('activity'), 'activity');
 	elgg_register_menu_item('site', $item);
-	
-	elgg_register_widget_type('river_widget', elgg_echo('river:widget:title'), elgg_echo('river:widget:description'));
 
-	elgg_register_action('river/delete', '', 'admin');
+	elgg_register_widget_type('river_widget', elgg_echo('river:widget:title'), elgg_echo('river:widget:description'));
 
 	elgg_register_plugin_hook_handler('unit_test', 'system', 'elgg_river_test');
 }

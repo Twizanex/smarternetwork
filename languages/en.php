@@ -56,7 +56,6 @@ $english = array(
 	'DatabaseException:DBSetupIssues' => "There were a number of issues: ",
 	'DatabaseException:ScriptNotFound' => "Elgg couldn't find the requested database script at %s.",
 	'DatabaseException:InvalidQuery' => "Invalid query",
-	'DatabaseException:InvalidDBLink' => "Connection to database was lost.",
 
 	'IOException:FailedToLoadGUID' => "Failed to load new %s from GUID:%d",
 	'InvalidParameterException:NonElggObject' => "Passing a non-ElggObject to an ElggObject constructor!",
@@ -76,10 +75,10 @@ $english = array(
 	'ElggPlugin:MissingID' => 'Missing plugin ID (guid %s)',
 	'ElggPlugin:NoPluginPackagePackage' => 'Missing ElggPluginPackage for plugin ID %s (guid %s)',
 
-	'ElggPluginPackage:InvalidPlugin:MissingFile' => 'The required file "%s" is missing.',
-	'ElggPluginPackage:InvalidPlugin:InvalidDependency' => 'Its manifest contains an invalid dependency type "%s".',
-	'ElggPluginPackage:InvalidPlugin:InvalidProvides' => 'Its manifest contains an invalid provides type "%s".',
-	'ElggPluginPackage:InvalidPlugin:CircularDep' => 'There is an invalid %s dependency "%s" in plugin %s.  Plugins cannot conflict with or require something they provide!',
+	'ElggPluginPackage:InvalidPlugin:MissingFile' => 'Missing file %s in package',
+	'ElggPluginPackage:InvalidPlugin:InvalidDependency' => 'Invalid dependency type "%s"',
+	'ElggPluginPackage:InvalidPlugin:InvalidProvides' => 'Invalid provides type "%s"',
+	'ElggPluginPackage:InvalidPlugin:CircularDep' => 'Invalid %s dependency "%s" in plugin %s.  Plugins cannot conflict with or require something they provide!',
 
 	'ElggPlugin:Exception:CannotIncludeFile' => 'Cannot include %s for plugin %s (guid: %s) at %s.',
 	'ElggPlugin:Exception:CannotRegisterViews' => 'Cannot open views dir for plugin %s (guid: %s) at %s.',
@@ -175,7 +174,7 @@ $english = array(
 	'ConfigurationException:NoSiteID' => "No site ID has been specified.",
 	'SecurityException:APIAccessDenied' => "Sorry, API access has been disabled by the administrator.",
 	'SecurityException:NoAuthMethods' => "No authentication methods were found that could authenticate this API request.",
-	'SecurityException:ForwardFailedToRedirect' => 'Redirect could not be issued due to headers already being sent. Halting execution for security. Output started in file %s at line %d. Search http://docs.elgg.org/ for more information.',
+	'SecurityException:ForwardFailedToRedirect' => 'Redirect could not be issued due to headers already being sent. Halting execution for security. Search http://docs.elgg.org/ for more information.',
 	'InvalidParameterException:APIMethodOrFunctionNotSet' => "Method or function not set in call in expose_method()",
 	'InvalidParameterException:APIParametersArrayStructure' => "Parameters array structure is incorrect for call to expose method '%s'",
 	'InvalidParameterException:UnrecognisedHttpMethod' => "Unrecognised http method %s for api method '%s'",
@@ -229,14 +228,18 @@ $english = array(
 	'LoginException:PasswordFailure' => 'We could not log you in. Please check your username/email and password.',
 	'LoginException:AccountLocked' => 'Your account has been locked for too many log in failures.',
 	'LoginException:ChangePasswordFailure' => 'Failed current password check.',
-	'LoginException:Unknown' => 'We could not log you in due to an unknown error.',
+
+	'memcache:notinstalled' => 'PHP memcache module not installed, you must install php5-memcache',
+	'memcache:noservers' => 'No memcache servers defined, please populate the $CONFIG->memcache_servers variable',
+	'memcache:versiontoolow' => 'Memcache needs at least version %s to run, you are running %s',
+	'memcache:noaddserver' => 'Multiple server support disabled, you may need to upgrade your PECL memcache library',
 
 	'deprecatedfunction' => 'Warning: This code uses the deprecated function \'%s\' and is not compatible with this version of Elgg',
 
 	'pageownerunavailable' => 'Warning: The page owner %d is not accessible!',
 	'viewfailure' => 'There was an internal failure in the view %s',
 	'changebookmark' => 'Please change your bookmark for this page',
-	'noaccess' => 'You need to login to view this content or the content has been removed or you do not have permission to view it.',
+	'noaccess' => 'This content has been removed, is invalid, or you do not have permission to view it.',
 	'error:missing_data' => 'There was some data missing in your request',
 
 	'error:default' => 'Oops...something went wrong.',
@@ -359,13 +362,12 @@ $english = array(
 	'friendspicker:chararray' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
 
 	'avatar' => 'Avatar',
-	'avatar:noaccess' => "You're not allowed to edit this user's avatar",
 	'avatar:create' => 'Create your avatar',
 	'avatar:edit' => 'Edit avatar',
 	'avatar:preview' => 'Preview',
 	'avatar:upload' => 'Upload a new avatar',
 	'avatar:current' => 'Current avatar',
-	'avatar:remove' => 'Remove your avatar and set the default icon',
+	'avatar:revert' => 'Revert your avatar to the default icon',
 	'avatar:crop:title' => 'Avatar cropping tool',
 	'avatar:upload:instructions' => "Your avatar is displayed throughout the site. You can change it as often as you'd like. (File formats accepted: GIF, JPG or PNG)",
 	'avatar:create:instructions' => 'Click and drag a square below to match how you want your avatar cropped. A preview will appear in the box on the right. When you are happy with the preview, click \'Create your avatar\'. This cropped version will be used throughout the site as your avatar.',
@@ -374,8 +376,8 @@ $english = array(
 	'avatar:resize:fail' => 'Resize of the avatar failed',
 	'avatar:crop:success' => 'Cropping the avatar succeeded',
 	'avatar:crop:fail' => 'Avatar cropping failed',
-	'avatar:remove:success' => 'Removing the avatar succeeded',
-	'avatar:remove:fail' => 'Avatar remove failed',
+	'avatar:revert:success' => 'Reverting the avatar succeeded',
+	'avatar:revert:fail' => 'Avatar revert failed',
 
 	'profile:edit' => 'Edit profile',
 	'profile:aboutme' => "About me",
@@ -406,13 +408,10 @@ $english = array(
 	'profile:editdefault:delete:fail' => 'Removed default profile item field failed',
 	'profile:editdefault:delete:success' => 'Profile field deleted',
 	'profile:defaultprofile:reset' => 'Profile fields reset to the system default',
-	'profile:resetdefault' => 'Reset profile fields to system defaults',
-	'profile:resetdefault:confirm' => 'Are you sure you want to delete your custom profile fields?',
+	'profile:resetdefault' => 'Reset default profile',
 	'profile:explainchangefields' => "You can replace the existing profile fields with your own using the form below. \n\n Give the new profile field a label, for example, 'Favorite team', then select the field type (eg. text, url, tags), and click the 'Add' button. To re-order the fields drag on the handle next to the field label. To edit a field label - click on the label's text to make it editable. \n\n At any time you can revert back to the default profile set up, but you will lose any information already entered into custom fields on profile pages.",
 	'profile:editdefault:success' => 'New profile field added',
 	'profile:editdefault:fail' => 'Default profile could not be saved',
-	'profile:field_too_long' => 'Cannot save your profile information because the "%s" section is too long.',
-	'profile:noaccess' => "You do not have permission to edit this profile.",
 
 
 /**
@@ -440,8 +439,6 @@ $english = array(
 	'river:ingroup' => 'in the group %s',
 	'river:none' => 'No activity',
 	'river:update' => 'Update for %s',
-	'river:delete:success' => 'River item has been deleted',
-	'river:delete:fail' => 'River item could not be deleted',
 
 	'river:widget:title' => "Activity",
 	'river:widget:description' => "Display latest activity",
@@ -453,7 +450,7 @@ $english = array(
  * Notifications
  */
 	'notifications:usersettings' => "Notification settings",
-	'notifications:methods' => "Select your notification methods.",
+	'notifications:methods' => "Please specify which methods you want to permit.",
 	'notification:method:email' => 'Email',
 
 	'notifications:usersettings:save:ok' => "Your notification settings were successfully saved.",
@@ -506,7 +503,6 @@ $english = array(
 	'registration:notemail' => 'The email address you provided does not appear to be a valid email address.',
 	'registration:userexists' => 'That username already exists',
 	'registration:usernametooshort' => 'Your username must be a minimum of %u characters long.',
-	'registration:usernametoolong' => 'Your username is too long. It can have a maximum of %u characters.',
 	'registration:passwordtooshort' => 'The password must be a minimum of %u characters long.',
 	'registration:dupeemail' => 'This email address has already been registered.',
 	'registration:invalidchars' => 'Sorry, your username contains the character %s which is invalid. The following characters are invalid: %s',
@@ -584,7 +580,6 @@ $english = array(
 	'admin:users' => "Users",
 	'admin:users:online' => 'Currently Online',
 	'admin:users:newest' => 'Newest',
-	'admin:users:admins' => 'Administrators',
 	'admin:users:add' => 'Add New User',
 	'admin:users:description' => "This admin panel allows you to control user settings for your site. Choose an option below to get started.",
 	'admin:users:adduser:label' => "Click here to add a new user...",
@@ -665,7 +660,6 @@ $english = array(
 
 
 	'admin:notices:could_not_delete' => 'Could not delete notice.',
-	'item:object:admin_notice' => 'Admin notice',
 
 	'admin:options' => 'Admin options',
 
@@ -691,11 +685,8 @@ $english = array(
 	'admin:plugins:label:author' => "Author",
 	'admin:plugins:label:copyright' => "Copyright",
 	'admin:plugins:label:categories' => 'Categories',
-	'admin:plugins:label:licence' => "License",
+	'admin:plugins:label:licence' => "Licence",
 	'admin:plugins:label:website' => "URL",
-	'admin:plugins:label:repository' => "Code",
-	'admin:plugins:label:bugtracker' => "Report issue",
-	'admin:plugins:label:donate' => "Donate",
 	'admin:plugins:label:moreinfo' => 'more info',
 	'admin:plugins:label:version' => 'Version',
 	'admin:plugins:label:location' => 'Location',
@@ -703,8 +694,7 @@ $english = array(
 
 	'admin:plugins:warning:elgg_version_unknown' => 'This plugin uses a legacy manifest file and does not specify a compatible Elgg version. It probably will not work!',
 	'admin:plugins:warning:unmet_dependencies' => 'This plugin has unmet dependencies and cannot be activated. Check dependencies under more info.',
-	'admin:plugins:warning:invalid' => 'This plugin is invalid: %s',
-	'admin:plugins:warning:invalid:check_docs' => 'Check <a href="http://docs.elgg.org/Invalid_Plugin">the Elgg documentation</a> for troubleshooting tips.',
+	'admin:plugins:warning:invalid' => '%s is not a valid Elgg plugin.  Check <a href="http://docs.elgg.org/Invalid_Plugin">the Elgg documentation</a> for troubleshooting tips.',
 	'admin:plugins:cannot_activate' => 'cannot activate',
 
 	'admin:plugins:set_priority:yes' => "Reordered %s.",
@@ -737,7 +727,6 @@ $english = array(
 	'admin:statistics:label:numusers' => "Number of users",
 	'admin:statistics:label:numonline' => "Number of users online",
 	'admin:statistics:label:onlineusers' => "Users online now",
-	'admin:statistics:label:admins'=>"Admins",
 	'admin:statistics:label:version' => "Elgg version",
 	'admin:statistics:label:version:release' => "Release",
 	'admin:statistics:label:version:version' => "Version",
@@ -752,9 +741,6 @@ $english = array(
 	'admin:server:label:mem_avail' => 'Memory available',
 	'admin:server:label:mem_used' => 'Memory used',
 	'admin:server:error_log' => "Web server's error log",
-	'admin:server:label:post_max_size' => 'POST maximum size',
-	'admin:server:label:upload_max_filesize' => 'Upload maximum size',
-	'admin:server:warning:post_max_too_small' => '(Note: post_max_size must be larger than this value to support uploads of this size)',
 
 	'admin:user:label:search' => "Find users:",
 	'admin:user:label:searchbutton' => "Search",
@@ -822,7 +808,7 @@ $english = array(
  */
 	'river:all' => 'All Site Activity',
 	'river:mine' => 'My Activity',
-	'river:friends' => 'Friends Activity',
+	'river:friends' => 'Friends Activty',
 	'river:select' => 'Show %s',
 	'river:comments:more' => '+%u more',
 	'river:generic_comment' => 'commented on %s %s',
@@ -875,7 +861,6 @@ $english = array(
 	'new' => 'New',
 	'add' => 'Add',
 	'create' => 'Create',
-	'remove' => 'Remove',
 	'revert' => 'Revert',
 
 	'site' => 'Site',
@@ -886,7 +871,6 @@ $english = array(
 	'down' => 'Down',
 	'top' => 'Top',
 	'bottom' => 'Bottom',
-	'back' => 'Back',
 
 	'invite' => "Invite",
 
@@ -950,7 +934,6 @@ $english = array(
  */
 
 	'deleteconfirm' => "Are you sure you want to delete this item?",
-	'deleteconfirm:plural' => "Are you sure you want to delete these items?",
 	'fileexists' => "A file has already been uploaded. To replace it, select it below:",
 
 /**
@@ -1058,10 +1041,6 @@ Once you have logged in, we highly recommend that you change your password.
 	'upgrading' => 'Upgrading...',
 	'upgrade:db' => 'Your database was upgraded.',
 	'upgrade:core' => 'Your Elgg installation was upgraded.',
-	'upgrade:unlock' => 'Unlock upgrade',
-	'upgrade:unlock:confirm' => "The database is locked for another upgrade. Running concurrent upgrades is dangerous. You should only continue if you know there is not another upgrade running. Unlock?",
-	'upgrade:locked' => "Cannot upgrade. Another upgrade is running. To clear the upgrade lock, visit the Admin section.",
-	'upgrade:unlock:success' => "Upgrade unlocked suscessfully.",
 	'upgrade:unable_to_upgrade' => 'Unable to upgrade.',
 	'upgrade:unable_to_upgrade_info' =>
 		'This installation cannot be upgraded because legacy views
@@ -1092,7 +1071,7 @@ Once you have logged in, we highly recommend that you change your password.
 	'email:settings' => "Email settings",
 	'email:address:label' => "Your email address",
 
-	'email:save:success' => "New email address saved.",
+	'email:save:success' => "New email address saved. Verification is requested.",
 	'email:save:fail' => "Your new email address could not be saved.",
 
 	'friend:newfriend:subject' => "%s has made you a friend!",
@@ -1142,7 +1121,7 @@ If you requested this, click on the link below. Otherwise ignore this email.
 
 	'comments:count' => "%s comments",
 
-	'river:comment:object:default' => '%s commented on %s',
+	'riveraction:annotation:generic_comment' => '%s commented on %s',
 
 	'generic_comments:add' => "Leave a comment",
 	'generic_comments:post' => "Post comment",
@@ -1156,7 +1135,6 @@ If you requested this, click on the link below. Otherwise ignore this email.
 	'generic_comment:failure' => "An unexpected error occurred when adding your comment.",
 	'generic_comment:none' => 'No comments',
 	'generic_comment:title' => 'Comment by %s',
-	'generic_comment:on' => '%s on %s',
 
 	'generic_comment:email:subject' => 'You have a new comment!',
 	'generic_comment:email:body' => "You have a new comment on your item \"%s\" from %s. It reads:
@@ -1190,11 +1168,9 @@ You cannot reply to this email.",
  * Action gatekeeper
  */
 	'actiongatekeeper:missingfields' => 'Form is missing __token or __ts fields',
-	'actiongatekeeper:tokeninvalid' => "The page you were using had expired. Please try again.",
+	'actiongatekeeper:tokeninvalid' => "We encountered an error (token mismatch). This probably means that the page you were using expired.",
 	'actiongatekeeper:timeerror' => 'The page you were using has expired. Please refresh and try again.',
 	'actiongatekeeper:pluginprevents' => 'A extension has prevented this form from being submitted.',
-	'actiongatekeeper:uploadexceeded' => 'The size of file(s) uploaded exceeded the limit set by your site administrator',
-	'actiongatekeeper:crosssitelogin' => "Sorry, logging in from a different domain is not permitted. Please try again.",
 
 
 /**
@@ -1213,7 +1189,7 @@ You cannot reply to this email.",
  * Javascript
  */
 
-	'js:security:token_refresh_failed' => 'Failed to contact %s. You may experience problems saving content. Please refresh this page.',
+	'js:security:token_refresh_failed' => 'Cannot contact %s. You may experience problems saving content.',
 	'js:security:token_refreshed' => 'Connection to %s restored!',
 
 /**

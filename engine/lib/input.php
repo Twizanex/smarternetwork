@@ -226,8 +226,6 @@ function elgg_clear_sticky_value($form_name, $variable) {
 /**
  * Page handler for autocomplete endpoint.
  *
- * @todo split this into functions/objects, this is way too big
- *
  * /livesearch?q=<query>
  *
  * Other options include:
@@ -235,7 +233,6 @@ function elgg_clear_sticky_value($form_name, $variable) {
  *     match_owner int    0/1
  *     limit       int    default is 10
  *
- * @param array $page
  * @return string JSON string is returned and then exit
  * @access private
  */
@@ -268,8 +265,10 @@ function input_livesearch_page_handler($page) {
 	}
 
 	if (get_input('match_owner', false)) {
+		$owner_guid = $user->getGUID();
 		$owner_where = 'AND e.owner_guid = ' . $user->getGUID();
 	} else {
+		$owner_guid = null;
 		$owner_where = '';
 	}
 
@@ -284,15 +283,13 @@ function input_livesearch_page_handler($page) {
 					WHERE e.guid = ue.guid
 						AND e.enabled = 'yes'
 						AND ue.banned = 'no'
-						AND (ue.name LIKE '$q%' OR ue.name LIKE '% $q%' OR ue.username LIKE '$q%')
+						AND (ue.name LIKE '$q%' OR ue.username LIKE '$q%')
 					LIMIT $limit
 				";
 
 				if ($entities = get_data($query)) {
 					foreach ($entities as $entity) {
-						// @todo use elgg_get_entities (don't query in a loop!)
 						$entity = get_entity($entity->guid);
-						/* @var ElggUser $entity */
 						if (!$entity) {
 							continue;
 						}
@@ -336,14 +333,12 @@ function input_livesearch_page_handler($page) {
 					WHERE e.guid = ge.guid
 						AND e.enabled = 'yes'
 						$owner_where
-						AND (ge.name LIKE '$q%' OR ge.name LIKE '% $q%' OR ge.description LIKE '% $q%')
+						AND (ge.name LIKE '$q%' OR ge.description LIKE '%$q%')
 					LIMIT $limit
 				";
 				if ($entities = get_data($query)) {
 					foreach ($entities as $entity) {
-						// @todo use elgg_get_entities (don't query in a loop!)
 						$entity = get_entity($entity->guid);
-						/* @var ElggGroup $entity */
 						if (!$entity) {
 							continue;
 						}
@@ -384,15 +379,13 @@ function input_livesearch_page_handler($page) {
 						AND e.guid = ue.guid
 						AND e.enabled = 'yes'
 						AND ue.banned = 'no'
-						AND (ue.name LIKE '$q%' OR ue.name LIKE '% $q%' OR ue.username LIKE '$q%')
+						AND (ue.name LIKE '$q%' OR ue.username LIKE '$q%')
 					LIMIT $limit
 				";
 
 				if ($entities = get_data($query)) {
 					foreach ($entities as $entity) {
-						// @todo use elgg_get_entities (don't query in a loop!)
 						$entity = get_entity($entity->guid);
-						/* @var ElggUser $entity */
 						if (!$entity) {
 							continue;
 						}

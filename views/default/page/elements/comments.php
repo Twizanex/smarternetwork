@@ -36,7 +36,8 @@ if ($html) {
 }
 
 if ($show_add_form) {
-	echo elgg_view_form('comments/add', array(), $vars);
+	$form_vars = array('name' => 'elgg_add_comment');
+	echo elgg_view_form('comments/add', $form_vars, $vars);
 }
 
 echo '</div>';

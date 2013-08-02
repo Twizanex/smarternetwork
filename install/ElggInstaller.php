@@ -157,7 +157,7 @@ class ElggInstaller {
 			'password',
 		);
 		foreach ($requiredParams as $key) {
-			if (empty($params[$key])) {
+			if (!array_key_exists($key, $params)) {
 				$msg = elgg_echo('install:error:requiredfield', array($key));
 				throw new InstallationException($msg);
 			}
@@ -1148,19 +1148,9 @@ class ElggInstaller {
 		foreach ($formVars as $field => $info) {
 			if ($info['required'] == TRUE && !$submissionVars[$field]) {
 				$name = elgg_echo("install:database:label:$field");
-				register_error(elgg_echo('install:error:requiredfield', array($name)));
+				register_error("$name is required");
 				return FALSE;
 			}
-		}
-
-		// according to postgres documentation: SQL identifiers and key words must
-		// begin with a letter (a-z, but also letters with diacritical marks and
-		// non-Latin letters) or an underscore (_). Subsequent characters in an
-		// identifier or key word can be letters, underscores, digits (0-9), or dollar signs ($).
-		// Refs #4994
-		if (!preg_match("/^[a-zA-Z_][\w]*$/", $submissionVars['dbprefix'])) {
-			register_error(elgg_echo('install:error:database_prefix'));
-			return FALSE;
 		}
 
 		return $this->checkDatabaseSettings(
@@ -1414,7 +1404,7 @@ class ElggInstaller {
 		$submissionVars['wwwroot'] = sanitise_filepath($submissionVars['wwwroot']);
 
 		$site = new ElggSite();
-		$site->name = strip_tags($submissionVars['sitename']);
+		$site->name = $submissionVars['sitename'];
 		$site->url = $submissionVars['wwwroot'];
 		$site->access_id = ACCESS_PUBLIC;
 		$site->email = $submissionVars['siteemail'];
@@ -1529,27 +1519,22 @@ class ElggInstaller {
 	protected function createAdminAccount($submissionVars, $login = FALSE) {
 		global $CONFIG;
 
-		try {
-			$guid = register_user(
-					$submissionVars['username'],
-					$submissionVars['password1'],
-					$submissionVars['displayname'],
-					$submissionVars['email']
-					);
-		} catch (Exception $e) {
-			register_error($e->getMessage());
-			return false;
-		}
+		$guid = register_user(
+				$submissionVars['username'],
+				$submissionVars['password1'],
+				$submissionVars['displayname'],
+				$submissionVars['email']
+				);
 
 		if (!$guid) {
 			register_error(elgg_echo('install:admin:cannot_create'));
-			return false;
+			return FALSE;
 		}
 
 		$user = get_entity($guid);
 		if (!$user) {
 			register_error(elgg_echo('install:error:loadadmin'));
-			return false;
+			return FALSE;
 		}
 
 		elgg_set_ignore_access(TRUE);
@@ -1558,7 +1543,7 @@ class ElggInstaller {
 		} else {
 			datalist_set('admin_registered', 1);
 		}
-		elgg_set_ignore_access(false);
+		elgg_set_ignore_access(FALSE);
 
 		// add validation data to satisfy user validation plugins
 		create_metadata($guid, 'validated', TRUE, '', 0, ACCESS_PUBLIC);

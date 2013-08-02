@@ -31,7 +31,7 @@ $files = elgg_list_entities($list_params);
 //get the newest members who have an avatar
 $newest_members = elgg_list_entities_from_metadata(array(
 	'metadata_names' => 'icontime',
-	'type' => 'user',
+	'types' => 'user',
 	'limit' => 10,
 	'full_view' => false,
 	'pagination' => false,
@@ -45,6 +45,21 @@ $list_params['type'] = 'group';
 unset($list_params['subtype']);
 $groups = elgg_list_entities($list_params);
 
+//newest market posts
+
+$num_items = 3;  // 0 = Unlimited
+
+$options = array(
+	'types' => 'object',
+	'subtypes' => 'market',
+	'limit' => $num_items,
+	'full_view' => false,
+	'pagination' => true,
+	'view_type_toggle' => false,
+);
+$market = elgg_list_entities($options);
+	
+
 //grab the login form
 $login = elgg_view("core/account/login_box");
 
@@ -57,6 +72,7 @@ $params = array(
 	'files' => $files,
 	'groups' => $groups,
 	'login' => $login,
+	'market' => $market,
 	'members' => $newest_members,
 );
 $body = elgg_view_layout('custom_index', $params);

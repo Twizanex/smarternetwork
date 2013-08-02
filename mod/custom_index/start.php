@@ -9,7 +9,7 @@ elgg_register_event_handler('init', 'system', 'custom_index_init');
 function custom_index_init() {
 
 	// Extend system CSS with our own styles
-	elgg_extend_view('css/elgg', 'custom_index/css');
+	elgg_extend_view('css/elgg', 'custom_index/css', 'market/css');
 
 	// Replace the default index page
 	elgg_register_plugin_hook_handler('index', 'system', 'custom_index');

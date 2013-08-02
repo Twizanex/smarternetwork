@@ -10,8 +10,6 @@
 /**
  * Retrieve the system log based on a number of parameters.
  *
- * @todo too many args, and the first arg is too confusing
- *
  * @param int|array $by_user    The guid(s) of the user(s) who initiated the event.
  *                              Use 0 for unowned entries. Anything else falsey means anyone.
  * @param string    $event      The event you are searching on.
@@ -24,12 +22,12 @@
  * @param int       $timebefore Lower time limit
  * @param int       $timeafter  Upper time limit
  * @param int       $object_id  GUID of an object
- * @param string    $ip_address The IP address.
+ * @param str       $ip_address The IP address.
  * @return mixed
  */
-function get_system_log($by_user = "", $event = "", $class = "", $type = "", $subtype = "", $limit = 10,
-						$offset = 0, $count = false, $timebefore = 0, $timeafter = 0, $object_id = 0,
-						$ip_address = "") {
+function get_system_log($by_user = "", $event = "", $class = "", $type = "", $subtype = "",
+$limit = 10, $offset = 0, $count = false, $timebefore = 0, $timeafter = 0, $object_id = 0,
+$ip_address = false) {
 
 	global $CONFIG;
 
@@ -158,8 +156,9 @@ function get_object_from_log_entry($entry_id) {
  * This is called by the event system and should not be called directly.
  *
  * @param object $object The object you're talking about.
- * @param string $event  The event being logged
- * @return void
+ * @param string $event  String The event being logged
+ *
+ * @return mixed
  */
 function system_log($object, $event) {
 	global $CONFIG;
@@ -167,13 +166,6 @@ function system_log($object, $event) {
 	static $cache_size = 0;
 
 	if ($object instanceof Loggable) {
-
-		/* @var ElggEntity|ElggExtender $object */
-		if (datalist_get('version') < 2012012000) {
-			// this is a site that doesn't have the ip_address column yet
-			return;
-		}
-
 		// reset cache if it has grown too large
 		if (!is_array($log_cache) || $cache_size > 500) {
 			$log_cache = array();
@@ -221,6 +213,8 @@ function system_log($object, $event) {
 			$log_cache[$time][$object_id][$event] = true;
 			$cache_size += 1;
 		}
+
+		return true;
 	}
 }
 

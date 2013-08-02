@@ -36,7 +36,6 @@ function elgg_get_site_url($site_guid = 0) {
 	if (!$site instanceof ElggSite) {
 		return false;
 	}
-	/* @var ElggSite $site */
 
 	return $site->url;
 }
@@ -92,29 +91,23 @@ function elgg_get_config($name, $site_guid = 0) {
 		return $CONFIG->$name;
 	}
 
-	if ($site_guid === null) {
+	if ($site_guid === NULL) {
 		// installation wide setting
 		$value = datalist_get($name);
 	} else {
-		// hit DB only if we're not sure if value exists or not
-		if (!isset($CONFIG->site_config_loaded)) {
-			// site specific setting
-			if ($site_guid == 0) {
-				$site_guid = (int) $CONFIG->site_id;
-			}
-			$value = get_config($name, $site_guid);
-		} else {
-			$value = null;
+		// site specific setting
+		if ($site_guid == 0) {
+			$site_guid = (int) $CONFIG->site_id;
 		}
+		$value = get_config($name, $site_guid);
 	}
 
-	// @todo document why we don't cache false
-	if ($value === false) {
-		return null;
+	if ($value !== false) {
+		$CONFIG->$name = $value;
+		return $value;
 	}
 
-	$CONFIG->$name = $value;
-	return $value;
+	return null;
 }
 
 /**
@@ -139,7 +132,7 @@ function elgg_set_config($name, $value) {
 /**
  * Save a configuration setting
  *
- * @param string $name      Configuration name (cannot be greater than 255 characters)
+ * @param string $name      Configuration name (cannot be greater than 32 characters)
  * @param mixed  $value     Configuration value. Should be string for installation setting
  * @param int    $site_guid NULL for installation setting, 0 for default site
  *
@@ -174,7 +167,7 @@ function elgg_save_config($name, $value, $site_guid = 0) {
 /**
  * Check that installation has completed and the database is populated.
  *
- * @throws InstallationException|DatabaseException
+ * @throws InstallationException
  * @return void
  * @access private
  */
@@ -182,7 +175,7 @@ function verify_installation() {
 	global $CONFIG;
 
 	if (isset($CONFIG->installed)) {
-		return;
+		return $CONFIG->installed;
 	}
 
 	try {
@@ -228,9 +221,9 @@ function datalist_get($name) {
 
 	$name = trim($name);
 
-	// cannot store anything longer than 255 characters in db, so catch here
-	if (elgg_strlen($name) > 255) {
-		elgg_log("The name length for configuration variables cannot be greater than 255", "ERROR");
+	// cannot store anything longer than 32 characters in db, so catch here
+	if (elgg_strlen($name) > 32) {
+		elgg_log("The name length for configuration variables cannot be greater than 32", "ERROR");
 		return false;
 	}
 
@@ -287,7 +280,7 @@ function datalist_get($name) {
 function datalist_set($name, $value) {
 	global $CONFIG, $DATALIST_CACHE;
 
-	// cannot store anything longer than 255 characters in db, so catch before we set
+	// cannot store anything longer than 32 characters in db, so catch before we set
 	if (elgg_strlen($name) > 255) {
 		elgg_log("The name length for configuration variables cannot be greater than 255", "ERROR");
 		return false;
@@ -333,7 +326,7 @@ function datalist_set($name, $value) {
  * This will cause the run once function to be run on all installations.  To perform
  * additional upgrades, create new functions for each release.
  *
- * @warning The function name cannot be longer than 255 characters long due to
+ * @warning The function name cannot be longer than 32 characters long due to
  * the current schema for the datalist table.
  *
  * @internal A datalist entry $functioname is created with the value of time().
@@ -408,7 +401,7 @@ function unset_config($name, $site_guid = 0) {
  * @param string $value     Its value
  * @param int    $site_guid Optionally, the GUID of the site (current site is assumed by default)
  *
- * @return bool
+ * @return 0
  * @todo The config table doens't have numeric primary keys so insert_data returns 0.
  * @todo Use "INSERT ... ON DUPLICATE KEY UPDATE" instead of trying to delete then add.
  * @see unset_config()
@@ -420,9 +413,9 @@ function set_config($name, $value, $site_guid = 0) {
 
 	$name = trim($name);
 
-	// cannot store anything longer than 255 characters in db, so catch before we set
-	if (elgg_strlen($name) > 255) {
-		elgg_log("The name length for configuration variables cannot be greater than 255", "ERROR");
+	// cannot store anything longer than 32 characters in db, so catch before we set
+	if (elgg_strlen($name) > 32) {
+		elgg_log("The name length for configuration variables cannot be greater than 32", "ERROR");
 		return false;
 	}
 
@@ -483,12 +476,10 @@ function get_config($name, $site_guid = 0) {
 			break;
 	}
 
-	// @todo these haven't really been implemented in Elgg 1.8. Complete in 1.9.
 	// show dep message
 	if ($new_name) {
-		//	$msg = "Config value $name has been renamed as $new_name";
 		$name = $new_name;
-		//	elgg_deprecated_notice($msg, $dep_version);
+		elgg_deprecated_notice($msg, $dep_version);
 	}
 
 	// decide from where to return the value
@@ -565,8 +556,6 @@ function _elgg_load_site_config() {
 	$CONFIG->url = $CONFIG->wwwroot;
 
 	get_all_config();
-	// gives hint to elgg_get_config function how to approach missing values
-	$CONFIG->site_config_loaded = true;
 }
 
 /**

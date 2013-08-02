@@ -28,9 +28,6 @@ class ElggCoreMetadataAPITest extends ElggCoreUnitTest {
 
 	public function testGetMetastringById() {
 		foreach (array('metaUnitTest', 'metaunittest', 'METAUNITTEST') as $string) {
-			// since there is no guarantee that metastrings are garbage collected
-			// between unit test runs, we delete before testing
-			$this->delete_metastrings($string);
 			$this->create_metastring($string);
 		}
 
@@ -46,6 +43,9 @@ class ElggCoreMetadataAPITest extends ElggCoreUnitTest {
 		{
 			$this->assertTrue(in_array($string, $this->metastrings));
 		}
+
+		// clean up
+		$this->delete_metastrings();
 	}
 
 	public function testElggGetEntitiesFromMetadata() {
@@ -77,6 +77,7 @@ class ElggCoreMetadataAPITest extends ElggCoreUnitTest {
 
 		// clean up
 		$this->object->delete();
+		$this->delete_metastrings();
 	}
 
 	public function testElggGetMetadataCount() {
@@ -102,14 +103,14 @@ class ElggCoreMetadataAPITest extends ElggCoreUnitTest {
 		$e = new ElggObject();
 		$e->save();
 
-		for ($i = 0; $i < 30; $i++) {
-			$name = "test_metadata$i";
+		for ($i=0; $i<30; $i++) {
+			$name = "test_metadata" . rand(0, 10000);
 			$e->$name = rand(0, 10000);
 		}
 
 		$options = array(
 			'guid' => $e->getGUID(),
-			'limit' => 0,
+			'limit' => 0
 		);
 
 		$md = elgg_get_metadata($options);
@@ -121,20 +122,6 @@ class ElggCoreMetadataAPITest extends ElggCoreUnitTest {
 		$this->assertTrue(empty($md));
 
 		$e->delete();
-	}
-
-	/**
-	 * https://github.com/Elgg/Elgg/issues/4867
-	 */
-	public function testElggGetEntityMetadataWhereSqlWithFalseValue() {
-		$pair = array('name' => 'test' , 'value' => false);
-		$result = elgg_get_entity_metadata_where_sql('e', 'metadata', null, null, $pair);
-		$where = preg_replace( '/\s+/', ' ', $result['wheres'][0]);
-		$this->assertTrue(strpos($where, "msn1.string = 'test' AND BINARY msv1.string = 0") > 0);
-
-		$result = elgg_get_entity_metadata_where_sql('e', 'metadata', array('test'), array(false));
-		$where = preg_replace( '/\s+/', ' ', $result['wheres'][0]);
-		$this->assertTrue(strpos($where, "msn.string IN ('test')) AND ( BINARY msv.string IN ('0')"));
 	}
 
 	// Make sure metadata with multiple values is correctly deleted when re-written
@@ -211,20 +198,20 @@ class ElggCoreMetadataAPITest extends ElggCoreUnitTest {
 		$u2->delete();
 	}
 
-	protected function delete_metastrings($string) {
-		global $CONFIG, $METASTRINGS_CACHE, $METASTRINGS_DEADNAME_CACHE;
-		$METASTRINGS_CACHE = $METASTRINGS_DEADNAME_CACHE = array();
-
-		$string = sanitise_string($string);
-		mysql_query("DELETE FROM {$CONFIG->dbprefix}metastrings WHERE string = BINARY '$string'");
-	}
 
 	protected function create_metastring($string) {
 		global $CONFIG, $METASTRINGS_CACHE, $METASTRINGS_DEADNAME_CACHE;
 		$METASTRINGS_CACHE = $METASTRINGS_DEADNAME_CACHE = array();
 
-		$string = sanitise_string($string);
 		mysql_query("INSERT INTO {$CONFIG->dbprefix}metastrings (string) VALUES ('$string')");
 		$this->metastrings[$string] = mysql_insert_id();
+	}
+
+	protected function delete_metastrings() {
+		global $CONFIG, $METASTRINGS_CACHE, $METASTRINGS_DEADNAME_CACHE;
+		$METASTRINGS_CACHE = $METASTRINGS_DEADNAME_CACHE = array();
+
+		$strings = implode(', ', $this->metastrings);
+		mysql_query("DELETE FROM {$CONFIG->dbprefix}metastrings WHERE id IN ($strings)");
 	}
 }

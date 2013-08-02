@@ -9,7 +9,7 @@ echo $vars['content'];
 
 echo '<div class="mtm">';
 echo elgg_view('output/url', array(
-	'text' => elgg_echo('back'),
+	'text' => 'Back',
 	'href' => $_SERVER['HTTP_REFERER'],
 	'class' => 'float-alt'
 ));
