@@ -18,21 +18,21 @@ $english = array(
 	'tag_names:tags' => 'Labels',
 	'tags:site_cloud' => 'Label Cloud',
 	'tag:search:startblurb' => "Items labeled as '%s':",
-	
+
 
     // Site terms -- Replace default terms from search/languages/en.php
 	'search:results' => 'Results for %s',
 
-    // Site terms -- Replace default terms from mod/tagcloud/languages/en.php 
+    // Site terms -- Replace default terms from mod/tagcloud/languages/en.php
 	'tagcloud:widget:title' => 'Label Array',
 	'tagcloud:widget:description' => 'Label array',
 	'tagcloud:widget:numtags' => 'Number of labels to show',
 
     // Site terms -- Replace default terms from pages/languages/en.php
 	'pages:tags' => 'Quebs',
-    
-        	
-	// Menu items and titles	
+
+
+	// Menu items and titles
 	'market' => "QuebX item",
 	'market:posts' => "Items",
 	'market:title' => "Stuff",
@@ -76,7 +76,7 @@ $english = array(
 	'market:edit' => "Edit item",
 	'market:imagelimitation' => "Must be JPG, GIF or PNG.",
 	'market:text' => "Brief description of your item",
-	'market:uploadimages' => "Add photos for your item",
+	'market:uploadimages' => "Add photo for your item",
 	'market:image' => "Item image",
 	'market:custom1' => "Custom Characteristic",
 	'market:custom2' => "Another Custom Characteristic",
@@ -120,7 +120,7 @@ $english = array(
 	'market:icon_size' => "Icon size",
 	'market:small' => "small",
 	'market:tiny' => "tiny",
-		
+
 	// market river
 	'river:create:object:market' => '%s posted a new item %s',
 	'river:update:object:market' => '%s updated the item %s',
@@ -131,7 +131,7 @@ $english = array(
 	'market:deleted' => "Your item was successfully deleted from QuebX.",
 	'market:uploaded' => "Your image was succesfully added.",
 
-	// Error messages	
+	// Error messages
 	'market:save:failure' => "Your item could not be saved. Please try again.",
 	'market:blank' => "Sorry; you need to fill in both the title and body before you can add an item.",
 	'market:tobig' => "Sorry; your file is bigger then 1MB, please upload a smaller file.",
@@ -159,8 +159,8 @@ $english = array(
 	// market categories
 	'market:categories' => 'Categories',
 	'market:categories:choose' => 'Choose category',
-	'market:categories:settings' => 'Categories:',	
-	'market:categories:explanation' => 'Set some predefined categories for posting to QuebX.<br>Categories could be "clothes, footwear or buy,sell etc...", seperate each category with commas - remember not to use special characters in categories and put them in your language files as market:<i>categoryname</i>',	
+	'market:categories:settings' => 'Categories:',
+	'market:categories:explanation' => 'Set some predefined categories for posting to QuebX.<br>Categories could be "clothes, footwear or buy,sell etc...", seperate each category with commas - remember not to use special characters in categories and put them in your language files as market:<i>categoryname</i>',
 	'market:categories:save:success' => 'Aspects were successfully saved.',
 	'market:categories:settings:categories' => 'Categories',
 	'market:all' => "Everything",
@@ -210,7 +210,31 @@ $english = array(
 	 'market:good' => "Good",
 	 'market:fair' => "Fair",
 	 'market:poor' => "Poor",
-	 
+
+	 'market:add_more' => "Add more to item",
+	 'market:edit_more:invalid_guid' => "This is not a valid market item.",
+	 'market:edit_more:response' => "The information was added to your item.",
+	 'market:category:all' => "Everything",
+
+	 // shoe example
+
+   'market:category:bicycles' => "Bicycles",
+   'market:category:shoes' => "Shoes",
+   'market:category:clothing' => "Clothing",
+	 'market:edit_more:shoes:family:label' => "Type of shoe",
+	 'market:edit_more:shoes:color:label' => "Color",
+	 'market:edit_more:shoes:size:label' => "Shoe size",
+
+	 'market:family:shoes:dress' => "Dress shoes",
+	 'market:family:shoes:running' => "Running shoes",
+
+	 'market:edit_more:shoes:running:brand:label' => "Brand",
+	 'market:edit_more:shoes:running:price:label' => "Price",
+
+	 'market:edit_more:shoes:dress:brand:label' => "Brand",
+	 'market:edit_more:shoes:dress:price:label' => "Price",
+
+
     //Quebx Labels
 		'quebx:asset_title' => "Title*",
 		'quebx:asset_category' => "Category",
@@ -254,9 +278,9 @@ $english = array(
 		'quebx:asset_colorexterior' => "Exterior Color",
 		'quebx:asset_colorinterior' => "Interior Color",
 		'quebx:auto_vin' => "VIN",
-		'quebx:asset_sku' => "SKU",      
+		'quebx:asset_sku' => "SKU",
 );
-					
+
 add_translation("en",$english);
 
 ?>

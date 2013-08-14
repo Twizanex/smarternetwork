@@ -60,9 +60,10 @@ function market_init() {
 	elgg_register_action("market/add/", "{$action_url}add.php");
 	elgg_register_action("market/quick/", "{$action_url}quick.php");
 	elgg_register_action("market/edit/", "{$action_url}edit.php");
+	elgg_register_action("market/edit_more/", "{$action_url}edit_more.php");
 	elgg_register_action("market/edit/auto/", "{$action_url}edit/auto.php");
 	elgg_register_action("market/delete/", "{$action_url}delete.php");
-	elgg_register_action("market/add/auto/", "{$action_url}add/auto.php");	
+	elgg_register_action("market/add/auto/", "{$action_url}add/auto.php");
 	//	elgg_register_action("market/[action]/[category]/", "{$action_url}/[action]/[category].php");
 }
 
@@ -101,6 +102,10 @@ function market_page_handler($page) {
 			gatekeeper();
 			include "$pages/add/add.php";
 			break;
+		case 'edit_more':
+		  gatekeeper();
+		  include "$pages/edit_more.php";
+		  break;
 		case 'auto':
 			gatekeeper();
 			include "$pages/add/auto.php";
@@ -177,7 +182,7 @@ function market_page_menu($hook, $type, $return, $params) {
 			if (!$page_owner) {
 				$page_owner = elgg_get_logged_in_user_entity();
 			}
-			
+
 			if ($page_owner != $user) {
 				$usertitle = elgg_echo('market:user', array($page_owner->name));
 				$return[] = new ElggMenuItem('1user', $usertitle, 'market/owned/' . $page_owner->username);
@@ -188,7 +193,7 @@ function market_page_menu($hook, $type, $return, $params) {
 			$return[] = new ElggMenuItem('1all', elgg_echo('market:everyone'), 'market');
 			$return[] = new ElggMenuItem('4friends', elgg_echo('market:friends'), 'market/friends/' . $user->username);
 			$return[] = new ElggMenuItem('3mine', elgg_echo('market:mine'), 'market/owned/' . $user->username);
-			
+
 		}
 	}
 

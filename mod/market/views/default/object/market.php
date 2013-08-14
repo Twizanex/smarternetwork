@@ -21,21 +21,8 @@ $currency = elgg_get_plugin_setting('market_currency', 'market');
 $owner = $marketpost->getOwnerEntity();
 $tu = $marketpost->time_updated;
 $container = $marketpost->getContainerEntity();
-$category = "<b>" . elgg_echo('market:category') . ":</b> " . elgg_echo("market:{$marketpost->marketcategory}");
-//Experimental begin
-if(isset($marketpost->manufacturer)){
-	$supplemental = "<br><b>" . elgg_echo('quebx:asset_manufacturer') . ":</b> " . elgg_echo($marketpost -> manufacturer);
-}
-if(isset($marketpost->brand)){
-	$supplemental .= "<br><b>" . elgg_echo('quebx:asset_brand') . ":</b> " . elgg_echo($marketpost -> brand);
-}
-if(isset($marketpost->model)){
-	$supplemental .= "<br><b>" . elgg_echo('quebx:asset_model') . ":</b> " . elgg_echo($marketpost -> model);
-}
-if(isset($marketpost->price) && elgg_echo($marketpost -> price) != '' ){
-	$value = "<br><b>" . elgg_echo('market:price') . "</b>: 	{$currency}{$marketpost->price}";
-}
-//Experimental end
+$category = "<b>" . elgg_echo('market:category') . ":</b> " . elgg_echo("market:category:{$marketpost->marketcategory}");
+
 $excerpt = elgg_get_excerpt($marketpost->description);
 
 $owner_link = elgg_view('output/url', array(
@@ -96,6 +83,7 @@ if ($full && !elgg_in_context('gallery')) {
 	} else {
 		$body .= elgg_view('output/longtext', array('value' => $marketpost->description));
 	}
+	$body .= elgg_view('market/display_level_info',array('entity'=>$marketpost));
 	$body .= "</td></tr><tr>";
 	$body .= "<td><center>";
     $body .= $value;

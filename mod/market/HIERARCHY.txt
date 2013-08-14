@@ -1,0 +1,53 @@
+This version of the market plugin includes changes to allow for hierarchical
+assets.
+
+The hierarchy is as follows:
+
+marketcategory
+family
+parent
+individual
+element
+
+When you create a basic asset, you specify the title, description,
+marketcategory, tags, image, and access.
+
+The possible market categories are defined in the market plugin settings.
+
+Depending upon the marketcategory selected and the available form definitions, 
+the user can optionally add additional information when adding or editing 
+an asset.
+
+In order to define a level in the hierarchy, you need to define an edit form
+and a display view. These will then be automatically picked up by the system.
+
+The edit forms should be located in the views/default/forms/market/edit 
+directory.
+
+The display views should be located in the views/default/market/display
+directory.
+
+There is one included example directory for a "shoes" marketcategory. This
+supports two "shoes" family levels: running and dress.
+
+The main shoes form is in:
+
+ views/default/forms/market/edit/shoes.php
+ 
+ and the family sublevel forms are defined in
+ 
+ views/default/forms/market/edit/shoes/running.php
+ and
+ views/default/forms/market/edit/shoes/dress.php
+ 
+ If you wanted to continue the hierarchy to the parent level 
+ (say for men and women) these forms would be in, for example
+ 
+ views/default/forms/market/edit/shoes/dress/men.php
+ and
+ views/default/forms/market/edit/shoes/dress/women.php
+ 
+ and the dress.php form would need to define a "parent" field
+ with possible values men or women.
+ 
+ The display views are organised in a similar hierarchical way.

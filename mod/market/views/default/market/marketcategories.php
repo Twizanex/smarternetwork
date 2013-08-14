@@ -17,8 +17,8 @@
 		if (!is_array($marketcategories)) $marketcategories = array($marketcategories);
 		$options = array();
 		foreach ($marketcategories as $option) {
-			$options[$option] = elgg_echo("market:{$option}");
-		}		
+			$options[$option] = elgg_echo("market:category:{$option}");
+		}
 
 //		echo "<label>" . elgg_echo('market:categories:choose') . "&nbsp;";
 		echo elgg_view('input/dropdown',array(
@@ -29,5 +29,3 @@
 //		echo "</label>";
 
 	}
-
-?>

@@ -18,7 +18,7 @@ elgg_push_breadcrumb(elgg_echo('market:add'));
 if (elgg_get_plugin_setting('market_adminonly', 'market') == 'yes') {
 	admin_gatekeeper();
 }
-		
+
 // How many classifieds can a user have
 $marketmax = elgg_get_plugin_setting('market_max', 'market');
 if(!$marketmax){
@@ -30,13 +30,30 @@ $marketactive = elgg_get_entities(elgg_get_logged_in_user_guid(), 'market');
 
 $title = elgg_echo('market:add:title');
 
+$form_vars = array('name' => 'marketForm', 'enctype' => 'multipart/form-data');
+// set up sticky form
+
+$body_vars = array(
+    'markettitle' => NULL,
+    'marketbody' => NULL,
+    'markettags' => NULL,
+    'marketcategory' => NULL,
+    'access_id' => ACCESS_DEFAULT,
+);
+if (elgg_is_sticky_form('market')) {
+		$sticky_values = elgg_get_sticky_values('market');
+		foreach ($sticky_values as $key => $value) {
+			$body_vars[$key] = $value;
+		}
+}
+
+elgg_clear_sticky_form('market');
+
 // Show form, or error if users has used his quota
-if ($marketmax == 0 || elgg_is_admin_logged_in()) { 
-	$form_vars = array('name' => 'marketForm', 'js' => 'onsubmit="acceptTerms();return false;"', 'enctype' => 'multipart/form-data');
-	$content = elgg_view_form("market/add", $form_vars);
-} elseif ($marketmax > $marketactive) { 
-	$form_vars = array('name' => 'marketForm', 'js' => 'onsubmit="acceptTerms();return false;"', 'enctype' => 'multipart/form-data');
-	$content = elgg_view_form("market/add", $form_vars);
+if ($marketmax == 0 || elgg_is_admin_logged_in()) {
+	$content = elgg_view_form("market/edit", $form_vars, $body_vars);
+} elseif ($marketmax > $marketactive) {
+	$content = elgg_view_form("market/edit", $form_vars, $body_vars);
 } else {
 	$content = elgg_view("market/error");
 }

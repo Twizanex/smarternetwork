@@ -20,7 +20,7 @@ array_unshift($categories, "all");
 $tabs = array();
 foreach ($categories as $category) {
 	$tabs[] = array(
-		'title' => elgg_echo("market:{$category}"),
+		'title' => elgg_echo("market:category:{$category}"),
 		'url' => $url . $category,
 		'selected' => $category == $type,
 	);
