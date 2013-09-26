@@ -132,6 +132,13 @@ function market_page_handler($page) {
 			set_input('cat', $page[1]);
 			include "$pages/category.php";
 			break;
+		case 'file':
+			set_input('guid', $page[1]);
+			set_input('time', $page[2]);
+			set_input('name', $page[3]);
+			include "$pages/file.php";
+			return true;
+			break;
 		default:
 			include "$pages/category.php";
 			break;
@@ -198,4 +205,56 @@ function market_page_menu($hook, $type, $return, $params) {
 	}
 
 	return $return;
+}
+
+
+function cars_user_picker_callback($query, $options = array()) {
+	
+	// this is the guid of the market entity
+	// we don't actually need it for this
+	$id = sanitize_int(get_input('id'));
+	
+	// replace mysql vars with escaped strings
+    $q = str_replace(array('_', '%'), array('\_', '\%'), sanitize_string($query));
+	
+	$dbprefix = elgg_get_config('dbprefix');
+	return elgg_get_entities(array(
+		'type' => 'user',
+		'joins' => array(
+			"JOIN {$dbprefix}users_entity ue ON ue.guid = e.guid",
+		),
+		'wheres' => array(
+			"ue.username LIKE '%{$q}%' OR ue.name LIKE '%{$q}%'",
+		),
+		'order_by' => 'ue.name ASC'
+	));
+}
+
+
+
+function cars_shoe_picker_callback($query, $options = array()) {
+	
+	// this is the guid of the market entity
+	// we don't actually need it for this
+	$id = sanitize_int(get_input('id'));
+	
+	// replace mysql vars with escaped strings
+    $q = str_replace(array('_', '%'), array('\_', '\%'), sanitize_string($query));
+	
+	$shoes_id = add_metastring('shoes');
+	$marketcat_id = add_metastring('marketcategory');
+	
+	$dbprefix = elgg_get_config('dbprefix');
+	return elgg_get_entities(array(
+		'type' => 'object',
+		'subtypes' => array('market'),
+		'joins' => array(
+			"JOIN {$dbprefix}objects_entity oe ON oe.guid = e.guid",
+			"JOIN {$dbprefix}metadata md ON md.entity_guid = e.guid AND md.name_id = {$marketcat_id} AND md.value_id = {$shoes_id}"
+		),
+		'wheres' => array(
+			"oe.title LIKE '%{$q}%' OR oe.description LIKE '%{$q}%'",
+		),
+		'order_by' => 'oe.title ASC'
+	));
 }

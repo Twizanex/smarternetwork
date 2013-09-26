@@ -23,12 +23,16 @@ $item = get_input('item');
 $entity = get_entity($guid);
 
 if (elgg_instanceof($entity,'object','market') && $entity->canEdit()) {
-
-  // TODO - convert to Elgg 1.8 sticky forms
+	
+  // process custom actions first
+  // allows for error checking, relationships etc.
+  if (file_exists(dirname(__FILE__) . "/custom/{$entity->marketcategory}/{$level}.php")) {
+	  include dirname(__FILE__) . "/custom/{$entity->marketcategory}/{$level}.php";
+  }
 
  // TODO: this won't work for some field types, eg. files, and tags
   foreach ($item as $key => $value) {
-    $entity->$key = $value;
+		$entity->$key = $value;
   }
 
   $new_h = $h . '/' . $item[$level];
