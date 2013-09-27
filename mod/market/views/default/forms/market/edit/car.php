@@ -9,6 +9,10 @@ if (elgg_instanceof($entity, 'object','market')) {
   echo elgg_view('input/hidden', array('name'=> 'guid', 'value' => $guid));
   echo elgg_view('input/hidden', array('name'=> 'h', 'value' => $vars['h']));
   echo elgg_view('input/hidden', array('name'=>'level', 'value' => 'family'));
+  
+  // there is only one family here, but there can be multiple if you look at the shoes example with a dropdown selection
+  // this relates to the next form view, which will now be foudn in edit/car/car.php
+  echo elgg_view('input/hidden', array('name'=>'item[family]', 'value' => 'family'));
 }
 echo '<br><br>';
 

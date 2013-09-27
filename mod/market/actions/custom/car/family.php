@@ -84,3 +84,57 @@ if (!empty($_FILES['upload']['name']) && $_FILES['upload']['error'] == 0) {
 		$entity->upload = $entity->guid . '/' . $time . '/' . $name;
 	}
 }
+
+/*
+ * Metadata storage - string vs array
+
+$entity->upload = 'path/to/file';
+
+$entity->upload = array(
+	'path/to/file1',
+	'path/to/file2',
+	'path/to/file3'
+);
+ * 
+ * 
+ */
+
+
+// Finally, lets identify this object as part of this family
+// turn family values into a unique string
+// this is unique per content type and depends on what is considered important to define the family
+$string = $entity->title . $entity->manufacturer;
+
+// components is family
+// components/values
+$names = $entity->component_names;
+$values = $entity->component_values;
+
+foreach ($names as $key => $name) {
+	if ($name === '' || $values[$key] == '') {
+		// don't show empty values
+		continue;
+	}
+	
+	$string .= $name . $values[$key];
+}
+
+
+// relationships
+if (is_array($drivers)) {
+	foreach ($drivers as $driver_guid) {
+		$string .= $driver_guid;
+	}
+}
+
+if (is_array($shoes)) {
+	foreach ($shoes as $shoe_guid) {
+		$string .= $shoe_guid;
+	}
+}
+
+
+// this is how we can tell what's related
+// this token will get updated each time an entity family information gets updated
+// so changing family info will 'fork' it
+$entity->family_token = md5($string);

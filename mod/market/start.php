@@ -64,6 +64,7 @@ function market_init() {
 	elgg_register_action("market/edit/auto/", "{$action_url}edit/auto.php");
 	elgg_register_action("market/delete/", "{$action_url}delete.php");
 	elgg_register_action("market/add/auto/", "{$action_url}add/auto.php");
+	elgg_register_action("market/clone", "{$action_url}clone.php");
 	//	elgg_register_action("market/[action]/[category]/", "{$action_url}/[action]/[category].php");
 }
 
