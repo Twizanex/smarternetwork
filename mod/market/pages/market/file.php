@@ -1,15 +1,11 @@
 <?php
+// note that this has no access
 
 $guid = get_input('guid');
 $time = get_input('time');
 $name = get_input('name');
 $entity = get_entity($guid);
 $filestorename = $time . $name;
-
-if (!$entity) {
-	// no access
-	return;
-}
 
 $file = new ElggFile();
 

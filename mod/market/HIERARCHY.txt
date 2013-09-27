@@ -50,4 +50,14 @@ The main shoes form is in:
  and the dress.php form would need to define a "parent" field
  with possible values men or women.
  
- The display views are organised in a similar hierarchical way.
+ The display views are organized in a similar hierarchical way.
+
+
+ Textual data can be saved automatically by the system, this includes arrays of values.
+ Relationships and file uploads need to be handled on a per-form basis, in this case a custom action
+ needs to be defined.  To do this simply create the file in the pattern of /actions/custom/[category]/[level].php
+ So for example if custom processing needs to happen at the family level of a category called 'car', then you would
+ create a php file to handle that at the location /actions/custom/car/family.php
+ The car category contains examples of all types of inputs, single string, multiple string arrays, relationships,
+ and file uploads.  The file upload system has been modified to be as easy to understand as possible, with copy/paste
+ code and a single metadata point storing the file location.
