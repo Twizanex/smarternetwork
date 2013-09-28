@@ -59,5 +59,22 @@ foreach ($data as $d) {
 	add_entity_relationship($d->guid_one, $d->relationship, $new->guid);
 }
 
+// clone the icon
+$sizes = array('tiny', 'small', 'medium', 'large');
+foreach ($sizes as $size) {
+	$original = new ElggFile();
+	$original->owner_guid = $entity->owner_guid;
+	$original->setFilename("market/" . $entity->guid . $size . ".jpg");
+	
+	$prefix = "market/".$new->guid;
+	$filehandler = new ElggFile();
+	$filehandler->owner_guid = $new->owner_guid;
+	$filehandler->setMimeType('image/jpeg');
+	$filehandler->setFilename($prefix . $size . ".jpg");
+	$filehandler->open("write");
+	copy($original->getFilenameOnFilestore(), $filehandler->getFilenameOnFilestore());
+	$filehandler->close();
+}
+
 system_message('New item has been added');
 forward(REFERER);

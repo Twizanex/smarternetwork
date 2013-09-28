@@ -64,3 +64,9 @@ $link = elgg_view('output/url', array(
 ));
 
 echo '<br><br>' . $link;
+
+
+echo '<br><br>';
+
+// next
+echo elgg_view('input/submit', array('value' => 'Next'));
