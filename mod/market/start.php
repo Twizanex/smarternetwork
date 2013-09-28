@@ -25,6 +25,7 @@ function market_init() {
 	// Extend owner block menu
 	elgg_register_plugin_hook_handler('register', 'menu:owner_block', 'market_owner_block_menu');
 	elgg_register_plugin_hook_handler('register', 'menu:page', 'market_page_menu');
+	elgg_register_plugin_hook_handler('register', 'menu:entity', 'market_entity_menu');
 
 	// Extend system CSS with our own styles
 	elgg_extend_view('css/elgg','market/css');
@@ -258,4 +259,39 @@ function cars_shoe_picker_callback($query, $options = array()) {
 		),
 		'order_by' => 'oe.title ASC'
 	));
+}
+
+
+/**
+ * 
+ * Changes the destination of the 'edit' link for an item
+ * 
+ * @param type $hook
+ * @param type $type
+ * @param type $return
+ * @param type $params
+ */
+function market_entity_menu($hook, $type, $return, $params) {
+	if (!elgg_instanceof($params['entity'], 'object', 'market') || !$params['entity']->canEdit()) {
+		return $return;
+	}
+	
+	
+	foreach ($return as $key => $link) {
+		if ($link->getName() != 'edit') {
+			continue;
+		}
+		
+		// $link is our menu item for editing
+		// urls may be different depending on category, so we'll do a switch here
+		switch ($params['entity']->marketcategory) {
+			case 'car':
+				$return[$key]->setHref('market/edit_more/'. $params['entity']->guid . '/car/family');
+				break;
+			
+			// add new cases for new categories
+		}
+	}
+	
+	return $return;
 }

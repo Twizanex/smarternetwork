@@ -61,3 +61,7 @@ The main shoes form is in:
  The car category contains examples of all types of inputs, single string, multiple string arrays, relationships,
  and file uploads.  The file upload system has been modified to be as easy to understand as possible, with copy/paste
  code and a single metadata point storing the file location.
+
+ The edit url of items may be different for different categories (they will be for any following this logic) and they
+ can be set in switch statement of the function market_entity_menu in start.php
+ See there for an example (the car category)
