@@ -33,7 +33,7 @@ if (count($individuals) > 1) {
 }
 else {
 	$value = ($entity->qty === '') ? 1 : $entity->qty;
-	elgg_view('input/text', array('name' => 'qty', 'value' => $value));
+	echo elgg_view('input/text', array('name' => 'qty', 'value' => $value));
 }
 
 echo '<br><br>';
